@@ -15,3 +15,5 @@ export interface MenuInterface {
 	icon: React.ReactNode;
 	url: string | URL;
 }
+
+export type STATUS = "FAVOURITED" | "ACTIVED" | "PENDING" | "BLOCKED" | "DELETED";

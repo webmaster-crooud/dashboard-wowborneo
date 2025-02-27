@@ -3,7 +3,6 @@ import "./globals.css";
 import { Provider as JotaiProvider } from "jotai";
 import { AuthProvider } from "~/providers/Auth.provider";
 import { Navbar } from "~/components/Navbar";
-import { Sidebar } from "~/components/Sidebar";
 import { Open_Sans } from "next/font/google";
 
 export const metadata: Metadata = {
@@ -27,14 +26,11 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang="en">
-			<body className={`antialiased ${openSans.className} scroll-smooth overflow-x-hidden max-w-screen-2xl`}>
+			<body className={`antialiased ${openSans.className} w-full scroll-smooth overflow-x-hidden max-w-screen-2xl bg-gray-100`}>
 				<JotaiProvider>
 					<AuthProvider>
 						<Navbar />
-						<div className="grid grid-cols-5 relative">
-							<Sidebar />
-							<main className="col-span-4 py-12 h-[300vh] px-8">{children}</main>
-						</div>
+						{children}
 					</AuthProvider>
 				</JotaiProvider>
 			</body>

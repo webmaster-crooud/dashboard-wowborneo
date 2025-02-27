@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Lebar scrollbar */
+::-webkit-scrollbar {
+	width: 12px;
+}
+
+/* Track scrollbar dengan background transparan */
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+/* Thumb scrollbar dengan warna default atau custom */
+::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.5); /* Contoh: semi-transparan */
+	border-radius: 10px;
+	border: 3px solid transparent; /* Jika ingin memberi padding di thumb */
+}
+
+/* Membuat scrollbar tipis dan menetapkan warna thumb serta track */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}

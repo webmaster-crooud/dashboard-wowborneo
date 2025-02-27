@@ -24,3 +24,5 @@ export const notificationAtom = atom<{ title: string; message: string }>({
 export const setNotificationAtom = atom(null, (get, set, notification: { title: string; message: string }) => {
 	set(notificationAtom, notification);
 });
+
+export const sidebarAtom = atom<boolean>(true);
