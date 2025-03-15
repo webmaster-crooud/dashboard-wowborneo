@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { HeaderAdmin } from "~/components/admin/header.admin";
+import { HeaderAdmin } from "~/components/Header";
 import { Breadcrumb } from "~/components/ui/Breadcrumb";
 import { Card } from "~/components/ui/Card";
 const dataBreadcrumb: Breadcrumb[] = [
@@ -10,7 +10,7 @@ const dataBreadcrumb: Breadcrumb[] = [
 ];
 export default function DashboardAdminPage() {
 	return (
-		<div className="min-h-screen">
+		<section className="min-h-screen">
 			<HeaderAdmin dataBreadcrumb={dataBreadcrumb} />
 			<section className="grid grid-cols-3 my-10 px-8 gap-6">
 				<Card title="Transactions">
@@ -29,6 +29,6 @@ export default function DashboardAdminPage() {
 					<div className="bg-transparent text-sm text-gray-600">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Tempora, reprehenderit dignissimos quos similique omnis fugit eaque! Inventore possimus corporis aliquid rerum distinctio neque, assumenda minus dolor, rem doloremque asperiores unde</div>
 				</Card>
 			</section>
-		</div>
+		</section>
 	);
 }
