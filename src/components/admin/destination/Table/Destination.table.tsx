@@ -1,65 +1,47 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import cruiseService from "~/services/cruise.service";
-import { SearchTable } from "../../../ui/Sarch.table";
-import { IconLoader3, IconStar, IconStarFilled } from "@tabler/icons-react";
-import { formatDate } from "~/lib/moment";
 import Link from "next/link";
-import { ICruiseResponseList } from "~/types/cruise";
+import { IDestinationBody } from "~/types/cruise";
 import { fetchError } from "~/utils/fetchError";
 import { useSetAtom } from "jotai";
 import { errorAtom, notificationAtom } from "~/stores";
 import { api } from "~/utils/api";
 import { ApiSuccessResponse, STATUS } from "~/types";
+import { SearchTable } from "~/components/ui/Sarch.table";
 
-export function CruiseTable() {
-    const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
+export function DestinationTable() {
+    const [destination, setDestination] = useState<IDestinationBody[]>([]);
     const [search, setSearch] = useState<string>("");
     const [loading, setLoading] = useState<{ stack: string; idx: string }>({ stack: "", idx: "" });
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
 
-    const fetchCruise = useCallback(async (search?: string) => {
-        const cruise = await cruiseService.list(search);
-        setCruise(cruise);
+    const fetchDestination = useCallback(async (search?: string) => {
+        const { data } = await api.get<ApiSuccessResponse<IDestinationBody[]>>(`${process.env.NEXT_PUBLIC_API}/admin/destination?search=${search}`, {
+            withCredentials: true,
+        });
+        setDestination(data.data);
     }, []);
 
     useEffect(() => {
-        fetchCruise();
-    }, [fetchCruise]);
+        fetchDestination();
+    }, [fetchDestination]);
 
     const handleSearchCruise = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        fetchCruise(search);
+        fetchDestination(search);
     };
 
-    const handleFavorited = async (cruiseId: string, status: STATUS) => {
-        setLoading({ stack: "favourited", idx: cruiseId });
+    const handleDeleted = async (destinationId: string, status: STATUS) => {
+        setLoading({ stack: "deleted", idx: destinationId });
         try {
             const { data } = await api.patch<ApiSuccessResponse<{ message: string }>>(
-                `${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruiseId}?action=${status}`
+                `${process.env.NEXT_PUBLIC_API}/admin/cruise/${destinationId}?action=${status}`
             );
 
             console.log(data);
             setNotification({ title: "Successfully", message: data.data.message });
-            fetchCruise();
-        } catch (error) {
-            fetchError(error, setError);
-        } finally {
-            setLoading({ stack: "", idx: "" });
-        }
-    };
-
-    const handleDeleted = async (cruiseId: string, status: STATUS) => {
-        setLoading({ stack: "deleted", idx: cruiseId });
-        try {
-            const { data } = await api.patch<ApiSuccessResponse<{ message: string }>>(
-                `${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruiseId}?action=${status}`
-            );
-
-            console.log(data);
-            setNotification({ title: "Successfully", message: data.data.message });
-            fetchCruise();
+            fetchDestination();
         } catch (error) {
             fetchError(error, setError);
         } finally {
@@ -81,75 +63,65 @@ export function CruiseTable() {
                 <thead>
                     <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
                         <th className="px-4 py-2 font-bold">Title</th>
-                        <th className="px-4 py-2 font-bold">Departure</th>
-                        <th className="px-4 py-2 font-bold">Duration</th>
+                        <th className="px-4 py-2 font-bold">Cruise</th>
+                        <th className="px-4 py-2 font-bold">Days</th>
                         <th className="px-4 py-2 font-bold">Status</th>
-                        <th className="px-4 py-2 font-bold">Created</th>
                         <th className="px-4 py-2 font-bold">Setting</th>
                     </tr>
                 </thead>
 
                 {/* Table Body */}
                 <tbody>
-                    {cruise.length === 0 ? (
+                    {destination.length === 0 ? (
                         <tr className="border-b border-gray-200">
                             <td className="px-4 py-3 text-nowrap text-center font-bold text-gray-600" colSpan={6}>
-                                Cruise is empty
+                                Destination is empty
                             </td>
                         </tr>
                     ) : (
-                        cruise.map((cruise, i) => (
+                        destination.map((dest, i) => (
                             <tr className="border-b border-gray-200" key={i}>
                                 <td className="px-4 py-3 text-nowrap flex items-center justify-start gap-2">
-                                    {cruise.status === "PENDING" ? (
-                                        <button disabled className="cursor-not-allowed">
-                                            <IconStar size={18} stroke={1.5} />
-                                        </button>
-                                    ) : (
-                                        <button onClick={() => handleFavorited(cruise.id, cruise.status === "FAVOURITED" ? "ACTIVED" : "FAVOURITED")}>
-                                            {loading.stack === "favourited" && loading.idx === cruise.id ? (
-                                                <IconLoader3 className="animate-spin" size={18} stroke={1.5} />
-                                            ) : cruise.status === "FAVOURITED" ? (
-                                                <IconStarFilled className="text-orange-600" size={18} stroke={1.5} />
-                                            ) : (
-                                                <IconStar size={18} stroke={1.5} />
-                                            )}
-                                        </button>
-                                    )}
-                                    <span>{cruise.title}</span>
+                                    <span>
+                                        {i + 1}. {dest.title}
+                                    </span>
                                 </td>
-                                <td className="px-4 py-3 text-nowrap">{cruise.departure}</td>
-                                <td className="px-4 py-3 text-nowrap">{`${cruise.duration} days ${Number(cruise.duration) - 1} night`}</td>
+
+                                <td className="px-4 py-3 text-nowrap">
+                                    <Link className="text-brown underline underline-offset-1" href={`/admin/cruises/${dest.cruise?.id}`}>
+                                        {dest.cruise?.title}
+                                    </Link>
+                                </td>
+                                <td className="px-4 py-3 text-nowrap">{`${dest.days} days`}</td>
                                 <td className="px-4 py-3 text-nowrap">
                                     <span
                                         className={`${
-                                            cruise.status === "ACTIVED"
+                                            dest.status === "ACTIVED"
                                                 ? "bg-cyan-700"
-                                                : cruise.status === "FAVOURITED"
+                                                : dest.status === "FAVOURITED"
                                                 ? "bg-orange-700"
-                                                : cruise.status === "DELETED"
+                                                : dest.status === "DELETED"
                                                 ? "bg-red-700"
                                                 : "bg-gray-700"
                                         } text-white px-5 py-1 rounded-full text-[11px] uppercase font-bold`}
                                     >
-                                        {cruise.status}
+                                        {dest.status}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-nowrap">{formatDate(cruise.updatedAt)}</td>
                                 <td className="px-4 py-3 text-nowrap">
                                     <div className="flex gap-2">
                                         <Link
-                                            href={`/admin/cruises/${cruise.id}`}
+                                            href={`/admin/cruises/${String(dest.id)}`}
                                             className="px-3 py-1 text-xs bg-cyan-600 text-white rounded-md font-medium"
                                         >
                                             Info
                                         </Link>
                                         <button
-                                            onClick={() => handleDeleted(cruise.id, "DELETED")}
+                                            onClick={() => handleDeleted(String(dest.id), "DELETED")}
                                             className="px-3 py-1 text-xs bg-red-600 text-white rounded-md font-medium"
-                                            disabled={loading.stack === "DELETED" && loading.idx === cruise.id}
+                                            disabled={loading.stack === "DELETED" && loading.idx === String(dest.id)}
                                         >
-                                            {loading.stack === "DELETED" && loading.idx === cruise.id ? "Loading..." : "Delete"}
+                                            {loading.stack === "DELETED" && loading.idx === String(dest.id) ? "Loading..." : "Delete"}
                                         </button>
                                     </div>
                                 </td>

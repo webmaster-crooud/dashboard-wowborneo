@@ -5,7 +5,7 @@ import { errorAtom } from "~/stores";
 import { IImage } from "~/types/cruise";
 import { getCoverImage, saveCoverImage, deleteCoverImage } from "~/lib/idb";
 
-export const useCoverUpload = (entityType: string, entityId: string, storageKeyPrefix: string = "cover") => {
+export const useCoverUpload = (entityType: string, entityId: string, storageKeyPrefix: string = "cover", imageType: "PHOTO" | "COVER" = "COVER") => {
     const [cover, setCover] = useState<IImage | null>(null);
     const setError = useSetAtom(errorAtom);
     const storageKey = `${storageKeyPrefix}_${entityType}_${entityId}`;
@@ -18,7 +18,7 @@ export const useCoverUpload = (entityType: string, entityId: string, storageKeyP
                 if (blob) {
                     setCover({
                         id: Number(coverId),
-                        imageType: "COVER",
+                        imageType: imageType,
                         entityType,
                         source: URL.createObjectURL(blob),
                         alt: "Cover image",
@@ -28,7 +28,7 @@ export const useCoverUpload = (entityType: string, entityId: string, storageKeyP
             }
         };
         loadCover();
-    }, [storageKey, setError, entityId, entityType]);
+    }, [storageKey, setError, entityId, entityType, imageType]);
 
     const uploadCover = useCallback(
         async (file: File) => {

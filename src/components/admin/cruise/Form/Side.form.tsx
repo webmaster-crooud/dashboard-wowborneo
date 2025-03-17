@@ -58,7 +58,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
 
                 {step === "MAIN" && (
                     <SubmitButton
-                        disabled={loading.stack === "cruise"}
+                        disabled={loading.stack === "submit"}
                         type="button"
                         title="Next"
                         icon={<IconArrowRightBar size={20} stroke={2} />}
@@ -69,7 +69,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "HIGHLIGHT" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("MAIN")}
                             title="BACK"
@@ -77,7 +77,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("INCLUDE")}
                             title="NEXT"
@@ -89,7 +89,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "INCLUDE" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("HIGHLIGHT")}
                             title="BACK"
@@ -97,7 +97,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("INFORMATION")}
                             title="NEXT"
@@ -109,7 +109,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "INFORMATION" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("INCLUDE")}
                             title="BACK"
@@ -117,7 +117,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("DESTINATION")}
                             title="NEXT"
@@ -129,7 +129,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "DESTINATION" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("INFORMATION")}
                             title="BACK"
@@ -137,7 +137,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("REVIEW")}
                             title="NEXT"
@@ -150,7 +150,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "REVIEW" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("DESTINATION")}
                             title="BACK"
@@ -158,11 +158,11 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="submit"
                             title="Save"
                             icon={
-                                loading.stack === "cruise" ? (
+                                loading.stack === "submit" ? (
                                     <IconLoader3 className="animate-spin" size={20} stroke={2} />
                                 ) : (
                                     <IconCloudUpload size={20} stroke={2} />
@@ -176,7 +176,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 {step === "CONTENT" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("INFORMATION")}
                             title="BACK"
@@ -184,7 +184,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                             className="w-full"
                         />
                         <SubmitButton
-                            disabled={loading.stack === "cruise"}
+                            disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("REVIEW")}
                             title="NEXT"

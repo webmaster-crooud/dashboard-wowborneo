@@ -26,7 +26,7 @@ export function ErrorAlert() {
         <motion.div
             initial={{ x: "10rem", opacity: 0 }}
             animate={{ x: "0rem", opacity: 1 }}
-            className={`fixed top-4 min-w-[25%] right-4 z-50 max-w-[40%]`}
+            className={`fixed top-4 min-w-[25%] right-4 z-[60] max-w-[40%]`}
         >
             <div className="bg-gray-100 border-2 border-red-600 rounded-lg shadow-lg">
                 <div className="flex items-center justify-between gap-5 w-full px-8 py-2 border-b-2 border-red-600 bg-red-600 text-white">

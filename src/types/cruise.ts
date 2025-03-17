@@ -50,6 +50,10 @@ export interface ICruiseBody {
 export interface IDestinationBody {
     id?: string;
     title: string;
+    cruise?: {
+        title: string;
+        id: string;
+    };
     description: string | null;
     days: string | number;
     status: STATUS;

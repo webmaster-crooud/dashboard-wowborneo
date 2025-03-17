@@ -9,7 +9,7 @@ export const LoaderForm = ({ loading }: { loading: { stack: string; field?: stri
                 <IconLivePhoto stroke={2} size={45} className="animate-ping absolute top-0 text-brown" />
             </div>
             <AnimatePresence mode="wait">
-                {loading.field === "cruise" && (
+                {loading.stack === "submit" && (
                     <m.div
                         key={"cruise"}
                         className="text-center font-semibold text-sm bg-white rounded-lg shadow-md px-5 py-3 w-full"
@@ -18,10 +18,10 @@ export const LoaderForm = ({ loading }: { loading: { stack: string; field?: stri
                         transition={{ duration: 0.3 }}
                         exit={{ scale: 0 }}
                     >
-                        Processing upload cruise data, please wait!
+                        Processing upload {loading.field} data, please wait!
                     </m.div>
                 )}
-                {loading.field === "destination" && (
+                {loading.stack === "upload" && (
                     <m.div
                         className="text-center font-semibold text-sm bg-white rounded-lg shadow-md px-5 py-3 w-full"
                         initial={{ scale: 0 }}
@@ -29,10 +29,11 @@ export const LoaderForm = ({ loading }: { loading: { stack: string; field?: stri
                         transition={{ duration: 0.3 }}
                         exit={{ scale: 0 }}
                     >
-                        Processing upload file cover destination.
+                        Processing upload file {loading.field}.
                     </m.div>
                 )}
-                {loading.field === "highlight" && (
+
+                {loading.stack === "fetch" && (
                     <m.div
                         className="text-center font-semibold text-sm bg-white rounded-lg shadow-md px-5 py-3 w-full"
                         initial={{ scale: 0 }}
@@ -40,7 +41,7 @@ export const LoaderForm = ({ loading }: { loading: { stack: string; field?: stri
                         transition={{ duration: 0.3 }}
                         exit={{ scale: 0 }}
                     >
-                        Processing upload file cover highlight.
+                        Processing fetching data {loading.field} from server.
                     </m.div>
                 )}
             </AnimatePresence>

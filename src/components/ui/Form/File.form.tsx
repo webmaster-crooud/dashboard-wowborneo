@@ -3,16 +3,19 @@
 import { IconTrash } from "@tabler/icons-react";
 import Image from "next/image";
 import { useCallback } from "react";
+import { twMerge } from "tailwind-merge";
 import { useCoverUpload } from "~/hooks/useCoverUpload";
 
 interface CoverUploaderProps {
     entityType: string;
     entityId: string;
     storageKeyPrefix?: string;
+    className?: string;
+    imageType?: "PHOTO" | "COVER";
 }
 
-export const CoverUploader = ({ entityType, entityId, storageKeyPrefix = "cover" }: CoverUploaderProps) => {
-    const { cover, uploadCover, removeCover } = useCoverUpload(entityType, entityId, storageKeyPrefix);
+export const CoverUploader = ({ entityType, entityId, storageKeyPrefix = "cover", className, imageType = "COVER" }: CoverUploaderProps) => {
+    const { cover, uploadCover, removeCover } = useCoverUpload(entityType, entityId, storageKeyPrefix, imageType);
 
     const handleFileChange = useCallback(
         async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +42,7 @@ export const CoverUploader = ({ entityType, entityId, storageKeyPrefix = "cover"
                         alt={cover.alt || "Cover by Wow Borneo"}
                         width={800}
                         height={400}
-                        className="rounded-lg object-cover w-full h-48"
+                        className={twMerge("rounded-lg object-cover w-full h-48", className)}
                     />
                     <button
                         type="button"

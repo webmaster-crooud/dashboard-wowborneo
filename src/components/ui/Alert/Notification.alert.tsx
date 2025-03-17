@@ -24,7 +24,7 @@ export function NotificationAlert() {
         <motion.div
             initial={{ x: "10rem", opacity: 0 }}
             animate={{ x: "0rem", opacity: 1 }}
-            className={`fixed top-4 min-w-[30%] right-4 z-50 max-w-[40%]`}
+            className={`fixed top-4 min-w-[30%] right-4 z-[60] max-w-[40%]`}
         >
             <div className="bg-gray-100 border-2 border-sky-600 rounded-lg shadow-lg">
                 <div className="flex items-center justify-between gap-5 w-full px-8 py-2 border-b-2 border-sky-600 bg-sky-600 text-white">
@@ -33,7 +33,7 @@ export function NotificationAlert() {
                         <IconX stroke={2.5} size={20} />
                     </button>
                 </div>
-                <p className="text-[15px] text-gray-700 px-8 py-4">{notification.message}</p>
+                <div className="text-[15px] text-gray-700 px-8 py-4">{notification.message}</div>
             </div>
         </motion.div>
     );

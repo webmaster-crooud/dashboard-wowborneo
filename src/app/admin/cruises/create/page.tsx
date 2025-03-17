@@ -52,7 +52,7 @@ export default function CreateCruisePage() {
     const [destinations] = useAtom(destinationBodyAtom);
     const [informations] = useAtom(informationBodyAtom);
     const [includes] = useAtom(includeBodyAtom);
-    const [loading, setLoading] = useState<{ stack: string; field?: string }>({ stack: "", field: "" });
+    const [loading, setLoading] = useState<{ stack: string; field?: string; value?: string }>({ stack: "", field: "" });
 
     const requestBody: ICruiseBody = {
         ...cruise,
@@ -62,10 +62,9 @@ export default function CreateCruisePage() {
         destinations: destinations || [],
     };
 
-    console.log(requestBody);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading({ stack: "cruise", field: "cruise" });
+        setLoading({ stack: "submit", field: "cruise" });
         try {
             // 1. Submit cruise data
             const result = await cruiseService.create(requestBody);
@@ -75,7 +74,7 @@ export default function CreateCruisePage() {
                 setError({ message: "Failed to uploaded data cruise, please check your input." });
             }
 
-            setLoading({ stack: "cruise", field: "highlight" });
+            setLoading({ stack: "upload", field: "highlight" });
             // 3. Upload highlight covers
             await Promise.all(
                 highlights.map(async (_, i) => {
@@ -91,7 +90,7 @@ export default function CreateCruisePage() {
                             formData.append("entityType", "HIGHLIGHT");
                             formData.append("imageType", "COVER");
 
-                            await api.post(`${process.env.NEXT_PUBLIC_API}/admin/upload`, formData, {
+                            await api.post(`${process.env.NEXT_PUBLIC_API}/upload`, formData, {
                                 headers: { "Content-Type": "multipart/form-data" },
                                 withCredentials: true,
                             });
@@ -100,7 +99,7 @@ export default function CreateCruisePage() {
                 })
             );
 
-            setLoading({ stack: "cruise", field: "destination" });
+            setLoading({ stack: "upload", field: "destination" });
             // 4. Upload destination covers
             await Promise.all(
                 destinations.map(async (_, i) => {
@@ -116,7 +115,7 @@ export default function CreateCruisePage() {
                             formData.append("entityType", "DESTINATION");
                             formData.append("imageType", "COVER");
 
-                            await api.post(`${process.env.NEXT_PUBLIC_API}/admin/upload`, formData, {
+                            await api.post(`${process.env.NEXT_PUBLIC_API}/upload`, formData, {
                                 headers: { "Content-Type": "multipart/form-data" },
                                 withCredentials: true,
                             });
@@ -131,7 +130,6 @@ export default function CreateCruisePage() {
             // Redirect atau tampilkan success message
             window.location.href = "/admin/cruises?notification=Successfully to create data cruise";
         } catch (error) {
-            console.error("Submission error:", error);
             fetchError(error, setError);
         } finally {
             setLoading({ stack: "", field: "" });
@@ -172,7 +170,7 @@ export default function CreateCruisePage() {
         });
     };
 
-    if (loading.stack === "cruise") {
+    if (loading.stack === "submit") {
         return <LoaderForm loading={loading} />;
     }
     return (
