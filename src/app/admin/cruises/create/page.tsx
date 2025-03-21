@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MainCruiseForm } from "~/components/admin/cruise/Form/Main.form";
 import { SideForm } from "~/components/admin/cruise/Form/Side.form";
 import { HeaderAdmin } from "~/components/Header";
@@ -18,13 +18,12 @@ import { ContentFormCruise } from "~/components/admin/cruise/Form/Content.form";
 import { ButtonNavigation } from "~/components/admin/cruise/Navigation/Button.navigation";
 import { useAtom, useSetAtom } from "jotai";
 import { cruiseBodyAtom, destinationBodyAtom, highlightBodyAtom, includeBodyAtom, informationBodyAtom } from "~/stores/cruise.store";
-import { deleteCoverImage, getCoverImage } from "~/lib/idb";
 import { ICruiseBody } from "~/types/cruise";
 import cruiseService from "~/services/cruise.service";
 import { errorAtom } from "~/stores";
 import { fetchError } from "~/utils/fetchError";
-import { api } from "~/utils/api";
 import { LoaderForm } from "~/components/ui/Form/Loader.form";
+import { cleanupStorage, uploadCover, uploadMultipleImages } from "~/utils/upload";
 
 const dataBreadcrumb: Breadcrumb[] = [
     {
@@ -44,6 +43,7 @@ const dataBreadcrumb: Breadcrumb[] = [
 export type FORMSTEP = "MAIN" | "DESTINATION" | "INFORMATION" | "INCLUDE" | "CONTENT" | "HIGHLIGHT" | "REVIEW";
 
 export default function CreateCruisePage() {
+    // cruise/create/page.tsx
     const { account } = useAuth();
     const [stepForm, setStepForm] = useState<FORMSTEP>("MAIN");
     const setError = useSetAtom(errorAtom);
@@ -66,65 +66,38 @@ export default function CreateCruisePage() {
         e.preventDefault();
         setLoading({ stack: "submit", field: "cruise" });
         try {
-            // 1. Submit cruise data
             const result = await cruiseService.create(requestBody);
             const { id: cruiseId, destinationIds, highlightIds } = result;
 
             if (!cruiseId) {
                 setError({ message: "Failed to uploaded data cruise, please check your input." });
+                return;
             }
 
+            // 2. Upload cover cruise
+            setLoading({ stack: "upload", field: "cruise" });
+            await uploadCover(`coverCruiseId_CRUISE_cruiseCover`, String(cruiseId), "CRUISE", "COVER");
+
+            // 3. Upload gallery cruise (photos)
+            await uploadMultipleImages(`photoCruiseId_CRUISE_cruisePhoto`, String(cruiseId), "CRUISE", "PHOTO");
+
+            // 4. Upload highlight covers
             setLoading({ stack: "upload", field: "highlight" });
-            // 3. Upload highlight covers
             await Promise.all(
                 highlights.map(async (_, i) => {
-                    const key = `coverImageId_HIGHLIGHT_${i}`;
-                    const coverId = localStorage.getItem(key);
-                    if (coverId) {
-                        const blob = await getCoverImage(Number(coverId));
-                        if (blob) {
-                            const file = new File([blob], `highlight-${i}.jpg`, { type: "image/jpeg" });
-                            const formData = new FormData();
-                            formData.append("file", file);
-                            formData.append("entityId", String(highlightIds[i]) || "");
-                            formData.append("entityType", "HIGHLIGHT");
-                            formData.append("imageType", "COVER");
-
-                            await api.post(`${process.env.NEXT_PUBLIC_API}/upload`, formData, {
-                                headers: { "Content-Type": "multipart/form-data" },
-                                withCredentials: true,
-                            });
-                        }
-                    }
+                    await uploadCover(`coverImageId_HIGHLIGHT_${i}`, String(highlightIds[i]), "HIGHLIGHT", "COVER");
                 })
             );
 
+            // 5. Upload destination covers
             setLoading({ stack: "upload", field: "destination" });
-            // 4. Upload destination covers
             await Promise.all(
                 destinations.map(async (_, i) => {
-                    const key = `coverImageId_DESTINATION_${i}`;
-                    const coverId = localStorage.getItem(key);
-                    if (coverId) {
-                        const blob = await getCoverImage(Number(coverId));
-                        if (blob) {
-                            const file = new File([blob], `destination-${i}.jpg`, { type: "image/jpeg" });
-                            const formData = new FormData();
-                            formData.append("file", file);
-                            formData.append("entityId", String(destinationIds[i]) || "");
-                            formData.append("entityType", "DESTINATION");
-                            formData.append("imageType", "COVER");
-
-                            await api.post(`${process.env.NEXT_PUBLIC_API}/upload`, formData, {
-                                headers: { "Content-Type": "multipart/form-data" },
-                                withCredentials: true,
-                            });
-                        }
-                    }
+                    await uploadCover(`coverImageId_DESTINATION_${i}`, String(destinationIds[i]), "DESTINATION", "COVER");
                 })
             );
 
-            // 5. Bersihkan storage
+            // 6. Bersihkan storage
             await cleanupStorage();
 
             // Redirect atau tampilkan success message
@@ -136,41 +109,28 @@ export default function CreateCruisePage() {
         }
     };
 
-    const cleanupStorage = async () => {
-        // Hapus semua data di localStorage
-        const keysToRemove = [...Object.keys(localStorage).filter((key) => key.startsWith("coverImageId"))];
+    useEffect(
+        () =>
+            setCruise({
+                cta: "",
+                departure: "",
+                description: "",
+                destinations: [],
+                duration: "",
+                highlights: [],
+                include: [],
+                informations: [],
+                introductionText: "",
+                introductionTitle: "",
+                slug: "",
+                status: "PENDING",
+                subTitle: "",
+                title: "",
+            }),
+        [setCruise]
+    );
 
-        await Promise.all(
-            keysToRemove.map(async (key) => {
-                const coverId = localStorage.getItem(key);
-                if (coverId) {
-                    await deleteCoverImage(Number(coverId));
-                }
-                localStorage.removeItem(key);
-            })
-        );
-
-        localStorage.clear();
-        localStorage.removeItem("cruiseBody");
-        setCruise({
-            cta: "",
-            departure: "",
-            description: "",
-            destinations: [],
-            duration: "",
-            highlights: [],
-            include: [],
-            informations: [],
-            introductionText: "",
-            introductionTitle: "",
-            slug: "",
-            status: "PENDING",
-            subTitle: "",
-            title: "",
-        });
-    };
-
-    if (loading.stack === "submit") {
+    if (loading.stack === "submit" || loading.stack === "upload") {
         return <LoaderForm loading={loading} />;
     }
     return (

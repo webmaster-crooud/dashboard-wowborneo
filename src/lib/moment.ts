@@ -1,5 +1,16 @@
-import moment from "moment-timezone";
+export const formatDate = (date: Date | string | undefined): string => {
+    if (!date) return "";
 
-export const formatDate = (date: Date | string): string => {
-	return moment.tz(date, "Asia/Jakarta").locale("en-EN").format("DD, MMMM YYYY HH:mm:ss");
+    const dateObj = date instanceof Date ? date : new Date(date || "");
+
+    return new Intl.DateTimeFormat("en-EN", {
+        timeZone: "Asia/Jakarta",
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    }).format(dateObj);
 };

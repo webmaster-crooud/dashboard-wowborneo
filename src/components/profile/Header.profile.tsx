@@ -80,7 +80,12 @@ export function HeaderProfile({ dataBreadcrumb, account, setLoading, setEditing,
                                 animate={isHovered ? "visible" : "hidden"} // Child mengikuti parent
                                 className="absolute top-1/2 z-10 left-0 right-0 w-full"
                             >
-                                <SubmitButton title="Change" type="button" className="mx-auto" onClick={() => setModal("updateCover")} />
+                                <SubmitButton
+                                    title="Change"
+                                    type="button"
+                                    className="mx-auto bg-brown text-white"
+                                    onClick={() => setModal("updateCover")}
+                                />
                             </m.div>
                         </m.div>
 
@@ -131,8 +136,6 @@ function ModalFormProfile({ setModal, account, setLoading, fetchAccount }: props
         try {
             const { data } = await api.get<ApiSuccessResponse<{ id: number }>>(`${process.env.NEXT_PUBLIC_API}/account/check-photo`);
             const id = data.data; // id Cover
-            console.log(data);
-            console.log(id);
             if (!id) {
                 setLoading({ stack: "upload", field: "Photo Profile" });
                 const key = `coverAccountId_ACCOUNT_${account.id}`;
@@ -180,7 +183,7 @@ function ModalFormProfile({ setModal, account, setLoading, fetchAccount }: props
                     }
                 }
             }
-            fetchAccount();
+            await fetchAccount();
             setNotification({
                 title: "Successfully",
                 message: (

@@ -27,11 +27,11 @@ export const CoverUploader = ({ entityType, entityId, storageKeyPrefix = "cover"
 
     return (
         <div className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 transition-colors h-full">
                 <input type="file" id={`cover-${entityId}`} className="hidden" onChange={handleFileChange} accept="image/*" />
-                <label htmlFor={`cover-${entityId}`} className="inline-flex flex-col items-center gap-2 text-gray-500">
-                    <span>Seret atau klik untuk upload cover</span>
-                    <span className="text-sm text-gray-400">Maksimal 5MB (JPEG/PNG)</span>
+                <label htmlFor={`cover-${entityId}`} className="flex justify-center flex-col items-center gap-2 text-gray-500 h-full">
+                    <span className="text-sm">Klik or Drag and Drop your file upload</span>
+                    <span className="text-sm text-gray-400">Max. 5MB (JPEG/PNG)</span>
                 </label>
             </div>
 

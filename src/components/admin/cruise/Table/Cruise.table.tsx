@@ -40,7 +40,6 @@ export function CruiseTable() {
                 `${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruiseId}?action=${status}`
             );
 
-            console.log(data);
             setNotification({ title: "Successfully", message: data.data.message });
             fetchCruise();
         } catch (error) {
@@ -57,7 +56,6 @@ export function CruiseTable() {
                 `${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruiseId}?action=${status}`
             );
 
-            console.log(data);
             setNotification({ title: "Successfully", message: data.data.message });
             fetchCruise();
         } catch (error) {

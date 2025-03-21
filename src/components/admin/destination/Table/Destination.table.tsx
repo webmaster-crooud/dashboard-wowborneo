@@ -39,7 +39,6 @@ export function DestinationTable() {
                 `${process.env.NEXT_PUBLIC_API}/admin/cruise/${destinationId}?action=${status}`
             );
 
-            console.log(data);
             setNotification({ title: "Successfully", message: data.data.message });
             fetchDestination();
         } catch (error) {

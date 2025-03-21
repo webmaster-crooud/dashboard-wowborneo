@@ -26,6 +26,8 @@ export interface ICruiseResponseDetail {
     highlights: IHighlightBody[];
     include: IIncludeBody[];
     informations: IInformationBody[];
+    cover: IImage;
+    gallery: IImage[];
     createdAt?: Date | string;
     updatedAt?: Date | string;
 }

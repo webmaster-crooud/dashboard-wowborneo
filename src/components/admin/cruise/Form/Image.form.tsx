@@ -175,6 +175,7 @@ export function ImagesCruiseForm() {
                                         entityType: "",
                                         source: "",
                                         imageType: "COVER",
+                                        alt: "",
                                     });
                                 }}
                                 className="absolute top-2 right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"

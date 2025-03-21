@@ -147,7 +147,7 @@ const RichTextEditor = ({ content, setContent }: { content: string; setContent: 
             </div>
 
             {/* Editor */}
-            <EditorContent className="p-5" placeholder="The content here!" editor={editor} />
+            <EditorContent className="p-5 text-black" placeholder="The content here!" editor={editor} />
         </div>
     );
 };

@@ -1,4 +1,3 @@
-// app/admin/cruises/create/review/page.tsx
 "use client";
 
 import React from "react";
@@ -21,11 +20,50 @@ export function ReviewCruisePage({ setStep }: ReviewCruisePageProps) {
     const [informations] = useAtom(informationBodyAtom);
     const [includes] = useAtom(includeBodyAtom);
     const [covers, setCovers] = React.useState<{ [key: string]: string }>({});
+    const [cruiseCover, setCruiseCover] = React.useState<string | null>(null);
+    const [galleryImages, setGalleryImages] = React.useState<Array<{ id: string; url: string }>>([]);
 
-    // Ambil cover images dari IndexedDB
+    // Ambil cover images dan gallery dari IndexedDB
     React.useEffect(() => {
-        const loadCovers = async () => {
+        const loadAllImages = async () => {
             const newCovers: { [key: string]: string } = {};
+
+            // Load cruise cover
+            const cruiseCoverId = localStorage.getItem("coverCruiseId_CRUISE_cruiseCover");
+            if (cruiseCoverId) {
+                try {
+                    const blob = await getCoverImage(Number(cruiseCoverId));
+                    if (blob) {
+                        setCruiseCover(URL.createObjectURL(blob));
+                    }
+                } catch (error) {
+                    console.error("Error loading cruise cover:", error);
+                }
+            }
+
+            // Load gallery images
+            const galleryKeys = Object.keys(localStorage).filter((key) => key.startsWith("photoCruiseId_CRUISE_cruisePhoto_"));
+
+            const galleryPromises = galleryKeys.map(async (key) => {
+                const imageId = localStorage.getItem(key);
+                if (imageId) {
+                    try {
+                        const blob = await getCoverImage(Number(imageId));
+                        if (blob) {
+                            return {
+                                id: imageId,
+                                url: URL.createObjectURL(blob),
+                            };
+                        }
+                    } catch (error) {
+                        console.error(`Error loading gallery image ${key}:`, error);
+                    }
+                }
+                return null;
+            });
+
+            const galleryResults = await Promise.all(galleryPromises);
+            setGalleryImages(galleryResults.filter(Boolean) as Array<{ id: string; url: string }>);
 
             // Load highlight covers
             await Promise.all(
@@ -58,12 +96,12 @@ export function ReviewCruisePage({ setStep }: ReviewCruisePageProps) {
             setCovers(newCovers);
         };
 
-        loadCovers();
+        loadAllImages();
     }, [highlights, destinations]);
 
     return (
         <div className="space-y-8">
-            {/* Cruise Card - tetap sama */}
+            {/* Cruise Card */}
             <Card
                 title={
                     <div className="flex items-center justify-between gap-5">
@@ -75,6 +113,14 @@ export function ReviewCruisePage({ setStep }: ReviewCruisePageProps) {
                 }
             >
                 <div className="grid grid-cols-2 gap-4">
+                    {/* Cover Image */}
+                    {cruiseCover && (
+                        <div className="col-span-2 mb-4">
+                            <p className="font-semibold mb-2">Cover Image:</p>
+                            <Image height={300} width={600} src={cruiseCover} alt="Cruise Cover" className="w-full h-60 object-cover rounded-lg" />
+                        </div>
+                    )}
+
                     {/* Title */}
                     <div>
                         <p className="font-semibold">Title:</p>
@@ -125,6 +171,36 @@ export function ReviewCruisePage({ setStep }: ReviewCruisePageProps) {
                         <p>{cruise.cta || "-"}</p>
                     </div>
                 </div>
+            </Card>
+
+            {/* Gallery Card */}
+            <Card
+                title={
+                    <div className="flex items-center justify-between gap-5">
+                        <h5>Gallery</h5>
+                        <button type="button" onClick={() => setStep("CONTENT")} className="text-sm font-semibold">
+                            Edit
+                        </button>
+                    </div>
+                }
+            >
+                {galleryImages.length === 0 ? (
+                    <p className="text-sm">No gallery images added.</p>
+                ) : (
+                    <div className="grid grid-cols-3 gap-4">
+                        {galleryImages.map((image, index) => (
+                            <div key={image.id} className="relative">
+                                <Image
+                                    height={200}
+                                    width={300}
+                                    src={image.url}
+                                    alt={`Gallery image ${index + 1}`}
+                                    className="w-full h-48 object-cover rounded-lg"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </Card>
 
             {/* Card Informations */}

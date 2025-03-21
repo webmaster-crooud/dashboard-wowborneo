@@ -38,5 +38,6 @@ export async function getCoverImage(id: number): Promise<Blob | undefined> {
 
 export async function deleteCoverImage(id: number) {
     const db = await getDB();
+    await db.clear("covers");
     await db.delete("covers", id);
 }

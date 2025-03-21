@@ -19,7 +19,7 @@ export function InputForm({ className, value, label, handleInputChange, title, t
 
     return (
         <div className="w-full">
-            <label className="font-bold mb-2 flex items-center justify-start gap-1 text-sm uppercase" htmlFor={`label${title}`}>
+            <label className="font-bold mb-2 flex items-center justify-start gap-1 text-xs uppercase" htmlFor={`label${title}`}>
                 {!label ? title : label} {isRequired && <IconStarFilled size={7} stroke={2} className="text-red-500" />}
             </label>
             <div className="relative">

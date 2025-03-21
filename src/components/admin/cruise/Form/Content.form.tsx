@@ -2,7 +2,9 @@ import { useAtom } from "jotai";
 import { Card } from "~/components/ui/Card";
 import { InputForm } from "~/components/ui/Form/Input.form";
 import { cruiseBodyAtom } from "~/stores/cruise.store";
-import { ImagesCruiseForm } from "./Image.form";
+
+import { CoverUploader } from "~/components/ui/Form/File.form";
+import { MultipleUploader } from "~/components/ui/Form/MultipleFile.form";
 
 export function ContentFormCruise() {
     const [cruiseBody, setCruiseBody] = useAtom(cruiseBodyAtom);
@@ -46,7 +48,12 @@ export function ContentFormCruise() {
                 </div>
             </Card>
 
-            <ImagesCruiseForm />
+            <Card title="Cover">
+                <CoverUploader entityId="cruiseCover" entityType="CRUISE" imageType="COVER" storageKeyPrefix="coverCruiseId" />
+            </Card>
+            <Card title="Gallery">
+                <MultipleUploader entityId="cruisePhoto" entityType="CRUISE" imageType="PHOTO" storageKeyPrefix="photoCruiseId" maxFiles={8} />
+            </Card>
         </div>
     );
 }

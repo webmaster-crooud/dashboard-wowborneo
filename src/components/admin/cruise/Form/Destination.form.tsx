@@ -1,3 +1,5 @@
+// example component upload cover /destination
+
 "use client";
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { useAtom } from "jotai";

@@ -12,7 +12,7 @@ import { AnimatePresence } from "framer-motion";
 import { LoaderForm } from "~/components/ui/Form/Loader.form";
 import { HeaderProfile } from "~/components/profile/Header.profile";
 import { ChangePasswordProfile } from "~/components/profile/ChangePassword.profile";
-import { UpdateProfile } from "~/components/profile/update.profile";
+import { UpdateProfile } from "~/components/profile/Update.profile";
 
 export default function ProfilePage() {
     const [account, setAccount] = useState<IAccount>({

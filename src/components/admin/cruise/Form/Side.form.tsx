@@ -139,7 +139,7 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("REVIEW")}
+                            onClick={() => setStep("CONTENT")}
                             title="NEXT"
                             icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
@@ -147,12 +147,32 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                     </div>
                 )}
 
-                {step === "REVIEW" && (
+                {step === "CONTENT" && (
                     <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
                             onClick={() => setStep("DESTINATION")}
+                            title="BACK"
+                            icon={<IconArrowBack size={20} stroke={2} />}
+                            className="w-full"
+                        />
+                        <SubmitButton
+                            disabled={loading.stack === "submit"}
+                            type="button"
+                            onClick={() => setStep("REVIEW")}
+                            title="NEXT"
+                            icon={<IconArrowRightBar size={20} stroke={2} />}
+                            className="w-full"
+                        />
+                    </div>
+                )}
+                {step === "REVIEW" && (
+                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                        <SubmitButton
+                            disabled={loading.stack === "submit"}
+                            type="button"
+                            onClick={() => setStep("CONTENT")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
