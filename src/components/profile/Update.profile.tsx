@@ -14,7 +14,7 @@ import { errorAtom, notificationAtom } from "~/stores";
 
 type propsUpdateProfile = {
     setEditing: React.Dispatch<SetStateAction<string>>;
-    handleChangeInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleChangeInput: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     account: IAccount;
     setLoading: React.Dispatch<SetStateAction<{ stack: string; field: string }>>;
     fetchAccount: () => Promise<void>;

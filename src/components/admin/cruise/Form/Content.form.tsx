@@ -8,7 +8,7 @@ import { MultipleUploader } from "~/components/ui/Form/MultipleFile.form";
 
 export function ContentFormCruise() {
     const [cruiseBody, setCruiseBody] = useAtom(cruiseBodyAtom);
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setCruiseBody((prev) => ({
             ...prev,

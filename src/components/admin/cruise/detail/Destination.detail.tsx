@@ -49,6 +49,8 @@ export function DestinationDetailCruise({
                     withCredentials: true,
                 }
             );
+
+            setLoading({ stack: "submit", field: `Deleted cover destination-${id}` });
             fetchCruise();
         } catch (error) {
             fetchError(error, setError);
@@ -175,7 +177,7 @@ function ModalAddNewDestination({
         setDestination((prev) => (Array.isArray(prev) ? prev.map((dest) => ({ ...dest, status: cruise.status })) : []));
     }, [setDestination, cruise.status]);
 
-    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setDestination((prev) =>
             Array.isArray(prev) ? prev.map((dest, i) => (i === index ? { ...dest, [name]: name === "days" ? String(value) : value } : dest)) : []
@@ -197,7 +199,8 @@ function ModalAddNewDestination({
             const id = data.data.result;
             setLoading({ stack: "upload", field: "destination" });
             await uploadCover(`coverImageId_DESTINATION_0`, String(id), "DESTINATION", "COVER");
-            await cleanupStorage();
+            await cleanupStorage("coverImageId_DESTINATION_0", "destinationBody");
+            localStorage.clear();
             await fetchCruise();
         } catch (error) {
             fetchError(error, setError);
@@ -290,7 +293,7 @@ function ModalEditDestination({
     useEffect(() => {
         setDestination(data);
     }, [data]);
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setDestination((prev) => ({
             ...prev,
@@ -329,7 +332,8 @@ function ModalEditDestination({
                 await uploadCover(`coverImageId_DESTINATION_${destination.id}`, String(destination.id), "DESTINATION", "COVER");
             }
             setModal("");
-            await cleanupStorage();
+            await cleanupStorage("coverImageId_DESTINATION_0", "destinationBody");
+            localStorage.clear();
             await fetchCruise();
         } catch (error) {
             fetchError(error, setError);

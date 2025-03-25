@@ -22,7 +22,7 @@ export const DestinationCruiseForm = () => {
         setDestination((prev) => (Array.isArray(prev) ? prev.map((dest) => ({ ...dest, status: cruise.status })) : []));
     }, [setDestination, cruise.status]);
 
-    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setDestination((prev) =>
             Array.isArray(prev) ? prev.map((dest, i) => (i === index ? { ...dest, [name]: name === "days" ? String(value) : value } : dest)) : []

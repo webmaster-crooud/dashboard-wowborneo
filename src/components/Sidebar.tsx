@@ -1,6 +1,6 @@
 "use client";
 import { MainMenu } from "./ui/Menu/Main.menu";
-import { AdminMenuData, mainMenuData } from "~/constants/Menu";
+import { adminMenuData, mainMenuData } from "~/constants/Menu";
 import { motion as m } from "framer-motion";
 import { useAuth } from "~/hooks/useAuth";
 export function Sidebar() {
@@ -15,7 +15,7 @@ export function Sidebar() {
                 className="h-screen overflow-y-scroll sticky top-0 border-r border-slate-500/30 w-full py-12 flex flex-col gap-8 px-8 bg-gray-100 z-50"
             >
                 <MainMenu menu={mainMenuData} />
-                {allowedRolesAdmin.includes(account.role.name) && <MainMenu heading="Admin Menu" menu={AdminMenuData} />}
+                {allowedRolesAdmin.includes(account.role.name) && <MainMenu heading="Admin Menu" menu={adminMenuData} />}
             </m.aside>
         </>
     );

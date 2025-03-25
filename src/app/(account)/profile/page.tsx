@@ -54,7 +54,7 @@ export default function ProfilePage() {
         fetchAccount();
     }, [fetchAccount]);
 
-    const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { value, name } = e.target;
         setAccount((props) => ({
             ...props,

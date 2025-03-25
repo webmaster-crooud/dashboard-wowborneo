@@ -1,52 +1,63 @@
 import { IconArrowBack, IconArrowRightBar, IconCloudUpload, IconLoader3 } from "@tabler/icons-react";
 import { SetStateAction } from "jotai";
-import { useAtom } from "jotai";
-import React, { useEffect } from "react";
-import { FORMSTEPCRUISE } from "~/app/admin/cruises/create/page";
+import React, { useEffect, useState } from "react";
+import { FORMSTEPBOAT } from "~/app/admin/boats/create/page";
 import { SubmitButton } from "~/components/ui/Button/Submit.button";
 import { Card } from "~/components/ui/Card";
 import { InputForm } from "~/components/ui/Form/Input.form";
 
-import { SelectForm } from "~/components/ui/Form/Select.form";
+import { SelectDataInterface, SelectForm } from "~/components/ui/Form/Select.form";
 import { selectStatus } from "~/constants/Status";
-import { cruiseBodyAtom } from "~/stores/cruise.store";
+import cruiseService from "~/services/cruise.service";
 import { Account } from "~/types/auth";
+import { IBoatRequestBody } from "~/types/boat";
+import { ICruiseResponseList } from "~/types/cruise";
 
 type propsSideForm = {
     account: Account;
-    setStep: React.Dispatch<SetStateAction<FORMSTEPCRUISE>>;
-    step: FORMSTEPCRUISE;
+    body: IBoatRequestBody;
+    setBody: React.Dispatch<SetStateAction<IBoatRequestBody>>;
+    setStep: React.Dispatch<SetStateAction<FORMSTEPBOAT>>;
+    step: FORMSTEPBOAT;
     loading: { stack: string; field?: string };
 };
 
-export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, loading }) => {
-    const [cruiseBody, setCruiseBody] = useAtom(cruiseBodyAtom);
+export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, loading, body, setBody }) => {
+    const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
 
     useEffect(() => {
-        setCruiseBody((props) => ({
-            ...props,
-            status: account.role.name === "admin" ? "PENDING" : "ACTIVED",
-        }));
-    }, [account, setCruiseBody]);
+        const fetchCruise = async () => {
+            const cruiseData = await cruiseService.list();
+            setCruise(cruiseData);
+        };
+        fetchCruise();
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setCruiseBody((prev) => ({
+        setBody((prev) => ({
             ...prev,
             [name]: value,
         }));
     };
 
+    const dataCruise: SelectDataInterface[] = cruise.map((data) => ({
+        value: data.id,
+        name: data.title,
+    }));
+
     return (
-        <Card title="SEO + Meta Data" className="sticky top-5 h-96 z-[2] bg-gray-100">
+        <Card title="SEO + Meta Data" className="sticky top-5 h-fit z-[2] bg-gray-100">
             <div className="flex flex-col gap-y-5 min-h-full items-center justify-between">
-                <InputForm title="slug" type="text" value={cruiseBody.slug} handleInputChange={handleInputChange} placeholder="dayak-festival" />
+                <InputForm title="slug" type="text" value={body.slug || ""} handleInputChange={handleInputChange} placeholder="slug-of-boat" />
 
                 {account.role.name === "admin" ? (
-                    <SelectForm data={selectStatus} label="status" value={cruiseBody.status} onChange={handleInputChange} disabled />
+                    <SelectForm data={selectStatus} label="status" value={body.status} onChange={handleInputChange} disabled />
                 ) : (
-                    <SelectForm data={selectStatus} label="status" value={cruiseBody.status} onChange={handleInputChange} />
+                    <SelectForm data={selectStatus} label="status" value={body.status} onChange={handleInputChange} />
                 )}
+
+                <SelectForm data={dataCruise} title="Cruise" label="cruiseId" value={body.cruiseId} onChange={handleInputChange} />
 
                 {step === "MAIN" && (
                     <SubmitButton
@@ -54,12 +65,12 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         type="button"
                         title="Next"
                         icon={<IconArrowRightBar size={20} stroke={2} />}
-                        className="w-10/12 absolute bottom-5"
-                        onClick={() => setStep("HIGHLIGHT")}
+                        className="w-full"
+                        onClick={() => setStep("CABIN")}
                     />
                 )}
-                {step === "HIGHLIGHT" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                {step === "CABIN" && (
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
@@ -71,19 +82,19 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("INCLUDE")}
+                            onClick={() => setStep("ABOUT")}
                             title="NEXT"
                             icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
                         />
                     </div>
                 )}
-                {step === "INCLUDE" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                {step === "ABOUT" && (
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("HIGHLIGHT")}
+                            onClick={() => setStep("CABIN")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
@@ -91,19 +102,19 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("INFORMATION")}
+                            onClick={() => setStep("EXPERIENCE")}
                             title="NEXT"
                             icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
                         />
                     </div>
                 )}
-                {step === "INFORMATION" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                {step === "EXPERIENCE" && (
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("INCLUDE")}
+                            onClick={() => setStep("ABOUT")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
@@ -111,19 +122,19 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("DESTINATION")}
+                            onClick={() => setStep("FACILITY")}
                             title="NEXT"
                             icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
                         />
                     </div>
                 )}
-                {step === "DESTINATION" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                {step === "FACILITY" && (
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("INFORMATION")}
+                            onClick={() => setStep("EXPERIENCE")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
@@ -131,20 +142,19 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("CONTENT")}
+                            onClick={() => setStep("DECK")}
                             title="NEXT"
                             icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
                         />
                     </div>
                 )}
-
-                {step === "CONTENT" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                {step === "DECK" && (
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("DESTINATION")}
+                            onClick={() => setStep("FACILITY")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
@@ -160,11 +170,11 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                     </div>
                 )}
                 {step === "REVIEW" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
+                    <div className="flex w-full items-center justify-center gap-5">
                         <SubmitButton
                             disabled={loading.stack === "submit"}
                             type="button"
-                            onClick={() => setStep("CONTENT")}
+                            onClick={() => setStep("DECK")}
                             title="BACK"
                             icon={<IconArrowBack size={20} stroke={2} />}
                             className="w-full"
@@ -180,27 +190,6 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                                     <IconCloudUpload size={20} stroke={2} />
                                 )
                             }
-                            className="w-full"
-                        />
-                    </div>
-                )}
-
-                {step === "CONTENT" && (
-                    <div className="flex w-10/12 absolute bottom-5 items-center justify-center gap-5">
-                        <SubmitButton
-                            disabled={loading.stack === "submit"}
-                            type="button"
-                            onClick={() => setStep("INFORMATION")}
-                            title="BACK"
-                            icon={<IconArrowBack size={20} stroke={2} />}
-                            className="w-full"
-                        />
-                        <SubmitButton
-                            disabled={loading.stack === "submit"}
-                            type="button"
-                            onClick={() => setStep("REVIEW")}
-                            title="NEXT"
-                            icon={<IconArrowRightBar size={20} stroke={2} />}
                             className="w-full"
                         />
                     </div>

@@ -160,7 +160,7 @@ function ModalAddNewHighlight({
         setHighlights((prev) => prev.map((hl) => ({ ...hl, status: cruise.status })));
     }, [setHighlights, cruise.status]);
 
-    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setHighlights((prev) => prev.map((hl, i) => (i === index ? { ...hl, [name]: value } : hl)));
     };
@@ -179,7 +179,8 @@ function ModalAddNewHighlight({
             const id = data.data.result;
             setLoading({ stack: "upload", field: "highlight" });
             await uploadCover(`coverImageId_HIGHLIGHT_0`, String(id), "HIGHLIGHT", "COVER");
-            await cleanupStorage();
+            await cleanupStorage("coverImageId_HIGHLIGHT_0", "highlightBody");
+            localStorage.clear();
             await fetchCruise();
         } catch (error) {
             fetchError(error, setError);
@@ -267,7 +268,7 @@ function ModalEditHighlight({
         setHighlight(data);
     }, [data]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setHighlight((prev) => ({ ...prev, [name]: value }));
     };
@@ -295,7 +296,8 @@ function ModalEditHighlight({
                 await uploadCover(`coverImageId_HIGHLIGHT_${highlight.id}`, String(highlight.id), "HIGHLIGHT", "COVER");
             }
 
-            await cleanupStorage();
+            await cleanupStorage("coverImageId_HIGHLIGHT_0", "highlightBody");
+            localStorage.clear();
             await fetchCruise();
             setModal("");
         } catch (error) {

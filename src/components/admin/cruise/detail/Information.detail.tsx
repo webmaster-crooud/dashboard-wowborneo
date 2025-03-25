@@ -149,7 +149,7 @@ function ModalAddNewInformation({
     const setError = useSetAtom(errorAtom);
     const [informations, setInformations] = useState<IInformationBody>({ text: "", title: "" });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setInformations((prev) => ({
             ...prev,
@@ -249,7 +249,7 @@ function ModalEditInformation({
         setInformation(data);
     }, [data]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setInformation((prev) => ({ ...prev, [name]: value }));
     };

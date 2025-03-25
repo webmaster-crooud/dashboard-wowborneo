@@ -18,7 +18,7 @@ export const MainCruiseForm = ({ account }: { account: Account }) => {
         }));
     }, [account, setCruiseBody]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setCruiseBody((prev) => ({
             ...prev,

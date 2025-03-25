@@ -9,7 +9,7 @@ import { informationBodyAtom } from "~/stores/cruise.store";
 export const InformationCruiseForm = () => {
     const [informations, setInformations] = useAtom(informationBodyAtom);
 
-    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (index: number, e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setInformations((prev) => (Array.isArray(prev) ? prev.map((info, i) => (i === index ? { ...info, [name]: value } : info)) : []));
     };

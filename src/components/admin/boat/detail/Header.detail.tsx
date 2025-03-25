@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion as m } from "framer-motion";
 import { Breadcrumb } from "~/components/ui/Breadcrumb";
-import { ICruiseBody, ICruiseResponseDetail, IImage } from "~/types/cruise";
+import { ICruiseResponseList, IImage } from "~/types/cruise";
 import { SubmitButton } from "~/components/ui/Button/Submit.button";
 import { CanvasImage } from "~/components/ui/CanvasImage";
 import { SetStateAction, useSetAtom } from "jotai";
@@ -18,10 +18,9 @@ import {
     IconCloudUpload,
     IconEyeEdit,
     IconLoader3,
-    IconMap,
+    IconShip,
     IconStarFilled,
     IconTextCaption,
-    IconTimezone,
     IconX,
 } from "@tabler/icons-react";
 import { fetchError } from "~/utils/fetchError";
@@ -35,17 +34,21 @@ import { InputForm } from "~/components/ui/Form/Input.form";
 import RichTextEditor from "~/components/RichText";
 import { useAuth } from "~/hooks/useAuth";
 import { STATUS } from "~/types";
+import { IBoatResponse, IUpdateBoatRequest } from "~/types/boat";
+import Link from "next/link";
+import cruiseService from "~/services/cruise.service";
+import { SelectDataInterface, SelectForm } from "~/components/ui/Form/Select.form";
 
-type propsHeaderDetailCruise = {
+type propsHeaderDetailBoat = {
     dataBreadcrumb: Breadcrumb[];
-    cruise: ICruiseResponseDetail;
+    boat: IBoatResponse;
     cover: IImage;
-    fetchCruise: () => Promise<void>;
+    fetchBoat: () => Promise<void>;
     setLoading: React.Dispatch<SetStateAction<{ stack: string; field: string }>>;
     loading: { stack: string; field: string };
 };
 
-export function HeaderDetailCruise({ dataBreadcrumb, cruise, cover, fetchCruise, setLoading, loading }: propsHeaderDetailCruise) {
+export function HeaderDetailBoat({ dataBreadcrumb, boat, cover, fetchBoat, setLoading, loading }: propsHeaderDetailBoat) {
     const { account } = useAuth();
     const [modal, setModal] = useState<string>("");
     const [isHovered, setIsHovered] = useState(false);
@@ -55,11 +58,11 @@ export function HeaderDetailCruise({ dataBreadcrumb, cruise, cover, fetchCruise,
     };
     const setError = useSetAtom(errorAtom);
 
-    const handleActived = async (action: STATUS) => {
-        setLoading({ stack: "actived", field: "" });
+    const handleAction = async (action: STATUS) => {
+        setLoading({ stack: "action", field: "" });
         try {
-            await api.patch(`${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruise.id}?action=${action}`);
-            await fetchCruise();
+            await api.patch(`${process.env.NEXT_PUBLIC_API}/admin/boat/${boat.id}?action=${action}`);
+            await fetchBoat();
         } catch (error) {
             fetchError(error, setError);
         } finally {
@@ -72,7 +75,7 @@ export function HeaderDetailCruise({ dataBreadcrumb, cruise, cover, fetchCruise,
 
             {/* Button Navigation */}
             <div className="flex items-center justify-between gap-x-5 my-5">
-                <MainButton title="Back" icon={<IconArrowBack size={18} stroke={2} />} url="/admin/cruises" />
+                <MainButton title="Back" icon={<IconArrowBack size={18} stroke={2} />} url="/admin/boats" />
 
                 <div className="flex items-center justify-end gap-5">
                     <SubmitButton
@@ -80,54 +83,54 @@ export function HeaderDetailCruise({ dataBreadcrumb, cruise, cover, fetchCruise,
                         title="Edit"
                         className="bg-sky-600 text-white hover:bg-sky-800"
                         icon={<IconEyeEdit size={18} stroke={2} />}
-                        onClick={() => setModal("cruise")}
+                        onClick={() => setModal("boat")}
                     />
                     <SubmitButton
                         type="button"
                         disabled={account.role.name === "admin" || account.role.name === "member"}
-                        title="ACTIVED"
+                        title={boat.status === "PENDING" ? "ACTIVED" : "DELETE"}
                         className="bg-cyan-600 text-white hover:bg-cyan-800 disabled:cursor-not-allowed disabled:opacity-75 disabled:bg-cyan-800"
                         icon={
-                            loading.stack === "actived" ? (
+                            loading.stack === "action" ? (
                                 <IconLoader3 className="animate-spin" size={18} stroke={2} />
                             ) : (
                                 <IconCheck size={18} stroke={2} />
                             )
                         }
-                        onClick={() => handleActived("ACTIVED")}
+                        onClick={() => handleAction(boat.status === "PENDING" ? "ACTIVED" : "DELETED")}
                     />
                 </div>
             </div>
 
             <div className="flex flex-col gap-y-5">
                 <div className="flex items-center justify-between gap-5">
-                    <h1 className="text-2xl font-bold">{cruise.title}</h1>
+                    <h1 className="text-2xl font-bold">{boat.name}</h1>
                     <div className="flex items-center justify-end gap-2">
-                        {cruise.createdAt === cruise.updatedAt ? (
+                        {boat.createdAt === boat.updatedAt ? (
                             <>
                                 <h2 className="uppercase text-gray-700 text-xs font-bold">Created:</h2>
-                                <span className="text-xs text-black font-medium">{formatDate(cruise.createdAt)}</span>
+                                <span className="text-xs text-black font-medium">{formatDate(boat.createdAt)}</span>
                             </>
                         ) : (
                             <>
                                 <h2 className="uppercase text-gray-700 text-xs font-bold">Updated:</h2>
-                                <span className="text-xs text-black font-medium">{formatDate(cruise.updatedAt)}</span>
+                                <span className="text-xs text-black font-medium">{formatDate(boat.updatedAt)}</span>
                             </>
                         )}
                         <div className="w-[1px] h-5 bg-gray-500" />
                         <h2 className="uppercase text-gray-700 text-xs font-bold">Status:</h2>
                         <span className="text-xs text-black font-medium">
-                            {cruise.status === "PENDING" && (
+                            {boat.status === "PENDING" && (
                                 <div className="flex items-center justify-end gap-0.5 px-3 py-1 rounded-full bg-gray-400 text-gray-50">
                                     <IconClock size={14} stroke={2} /> Pending
                                 </div>
                             )}
-                            {cruise.status === "ACTIVED" && (
+                            {boat.status === "ACTIVED" && (
                                 <div className="flex items-center justify-end gap-0.5 px-3 py-1 rounded-full bg-cyan-700 text-gray-50">
                                     <IconCloudCheck size={16} stroke={2} /> Active
                                 </div>
                             )}
-                            {cruise.status === "FAVOURITED" && (
+                            {boat.status === "FAVOURITED" && (
                                 <div className="flex items-center justify-end gap-0.5 px-3 py-1 rounded-full bg-brown text-gray-50">
                                     <IconStarFilled size={16} stroke={2} /> Favourite
                                 </div>
@@ -146,74 +149,73 @@ export function HeaderDetailCruise({ dataBreadcrumb, cruise, cover, fetchCruise,
                         <SubmitButton title="Change" type="button" className="mx-auto bg-brown text-white" onClick={() => setModal("updateCover")} />
                     </m.div>
                 </m.div>
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 gap-5">
+                    <div className="col-span-2">
+                        <Card title="Description" classHeading="text-xs uppercase font-bold">
+                            <RichTextPreview value={String(boat.description)} />
+                        </Card>
+                    </div>
                     <div className="flex flex-col gap-y-5">
                         <div className="flex items-center justify-start gap-2">
                             <h2 className="uppercase text-gray-700 text-xs font-bold flex items-center justify-start gap-1">
-                                <IconTextCaption size={16} stroke={2} /> Sub Title:
+                                <IconTextCaption size={16} stroke={2} /> Option Text:
                             </h2>
-                            <span className="text-xs text-black font-medium">{cruise.subTitle}</span>
+                            <span className="text-xs text-black font-medium">{boat.optionText}</span>
                         </div>
                         <div className="flex items-center justify-start gap-2">
                             <h2 className="uppercase text-gray-700 text-xs font-bold flex items-center justify-start gap-1">
-                                <IconMap size={16} stroke={2} /> Departure:
+                                <IconShip size={16} stroke={2} /> Cruise:
                             </h2>
-                            <span className="text-xs text-black font-medium">{cruise.departure}</span>
+                            <Link
+                                href={boat.cruise.id || ""}
+                                className="text-xs text-black font-medium hover:text-brown underline-offset-2 underline"
+                            >
+                                {boat.cruise.title}
+                            </Link>
                         </div>
-                        <div className="flex items-center justify-start gap-2">
-                            <h2 className="uppercase text-gray-700 text-xs font-bold flex items-center justify-start gap-1">
-                                <IconTimezone size={16} stroke={2} /> Duration:
-                            </h2>
-                            <span className="text-xs text-black font-medium">{`${cruise.duration} days ${parseInt(cruise.duration) - 1} night`}</span>
-                        </div>
-                    </div>
-                    <div className="col-span-2">
-                        <Card title="Description" classHeading="text-xs uppercase font-bold">
-                            <RichTextPreview value={String(cruise.description)} />
-                        </Card>
                     </div>
                 </div>
             </div>
-            {modal === "updateCover" && <ModalCruiseCover fetchCruise={fetchCruise} setLoading={setLoading} cover={cover} setModal={setModal} />}
-            {modal === "cruise" && <ModalCruiseDetail fetchCruise={fetchCruise} setLoading={setLoading} cruise={cruise} setModal={setModal} />}
+            {modal === "updateCover" && <ModalBoatCover fetchBoat={fetchBoat} setLoading={setLoading} cover={cover} setModal={setModal} />}
+            {modal === "boat" && <ModalBoatDetail fetchBoat={fetchBoat} setLoading={setLoading} boat={boat} setModal={setModal} />}
         </header>
     );
 }
 
-type propsModalCruiseCover = {
+type propsModalBoatCover = {
     setModal: React.Dispatch<SetStateAction<string>>;
     cover: IImage;
     setLoading: React.Dispatch<SetStateAction<{ stack: string; field: string }>>;
-    fetchCruise: () => Promise<void>;
+    fetchBoat: () => Promise<void>;
 };
 
-function ModalCruiseCover({ setModal, cover, setLoading, fetchCruise }: propsModalCruiseCover) {
+function ModalBoatCover({ setModal, cover, setLoading, fetchBoat }: propsModalBoatCover) {
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
-    const { cruiseId } = useParams();
+    const { boatId } = useParams();
     const handleUpdateCover = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading({ stack: "submit", field: "Cover River Cruise" });
+        setLoading({ stack: "submit", field: "Updated Cover Boat" });
         try {
             if (cover) {
-                setLoading({ stack: "upload", field: "Delete Cover River Cruise" });
+                setLoading({ stack: "upload", field: "Delete Cover Boat" });
                 await api.delete(`${process.env.NEXT_PUBLIC_API}/upload/${cover.id}`, {
                     headers: { "Content-Type": "multipart/form-data" },
                     withCredentials: true,
                 });
             }
 
-            setLoading({ stack: "upload", field: "Update Cover River Cruise" });
-            const key = `coverCruiseId_CRUISE_${cruiseId}`;
+            setLoading({ stack: "upload", field: "Update Cover River Boat" });
+            const key = `boat_BOAT_${boatId}`;
             const coverId = localStorage.getItem(key);
             if (coverId) {
                 const blob = await getCoverImage(Number(coverId));
                 if (blob) {
-                    const file = new File([blob], `cruise-${cruiseId}.jpg`, { type: "image/jpeg" });
+                    const file = new File([blob], `boat-${boatId}.jpg`, { type: "image/jpeg" });
                     const formData = new FormData();
                     formData.append("file", file);
-                    formData.append("entityId", String(cruiseId) || "");
-                    formData.append("entityType", "CRUISE");
+                    formData.append("entityId", String(boatId) || "");
+                    formData.append("entityType", "BOAT");
                     formData.append("imageType", "COVER");
 
                     await api.post(`${process.env.NEXT_PUBLIC_API}/upload`, formData, {
@@ -223,18 +225,18 @@ function ModalCruiseCover({ setModal, cover, setLoading, fetchCruise }: propsMod
                 }
             }
 
-            await fetchCruise();
+            await fetchBoat();
             setNotification({
                 title: "Successfully",
                 message: (
                     <div className="flex items-center justify-start gap-5">
                         <IconCheck stroke={2} size={18} className="text-green-500" />
-                        Change Cover River Cruise is completed.
+                        Change Cover Boat is completed.
                     </div>
                 ),
             });
-            cleanupStorage("coverCruiseId_CRUISE_", "cruiseBody");
-            fetchCruise();
+            cleanupStorage("boat_BOAT_", "boatBody");
+            fetchBoat();
         } catch (error) {
             fetchError(error, setError);
         } finally {
@@ -254,7 +256,7 @@ function ModalCruiseCover({ setModal, cover, setLoading, fetchCruise }: propsMod
             >
                 {/* Header Modal */}
                 <div className="flex items-center justify-between gap-x-5 p-3 border-b border-black">
-                    <h2>Change the River Cruise Cover</h2>
+                    <h2>Change Boat Cover</h2>
                     <button type="button" onClick={() => setModal("")}>
                         <IconX stroke={2} size={18} className="text-brown" />
                     </button>
@@ -262,10 +264,10 @@ function ModalCruiseCover({ setModal, cover, setLoading, fetchCruise }: propsMod
 
                 <div className="bg-white p-5 flex flex-col gap-y-3 text-orange-500 gap-5">
                     <CoverUploader
-                        entityId={String(cruiseId) || ""}
-                        entityType="CRUISE"
+                        entityId={String(boatId) || ""}
+                        entityType="BOAT"
                         className="w-full object-cover h-full"
-                        storageKeyPrefix="coverCruiseId"
+                        storageKeyPrefix="boat"
                         imageType="COVER"
                     />
 
@@ -276,20 +278,40 @@ function ModalCruiseCover({ setModal, cover, setLoading, fetchCruise }: propsMod
     );
 }
 
-type propsModalCruiseDetail = {
+type propsModalBoatDetail = {
     setModal: React.Dispatch<SetStateAction<string>>;
-    cruise: ICruiseResponseDetail;
+    boat: IBoatResponse;
     setLoading: React.Dispatch<SetStateAction<{ stack: string; field: string }>>;
-    fetchCruise: () => Promise<void>;
+    fetchBoat: () => Promise<void>;
 };
-function ModalCruiseDetail({ setModal, cruise, setLoading, fetchCruise }: propsModalCruiseDetail) {
+function ModalBoatDetail({ setModal, boat, setLoading, fetchBoat }: propsModalBoatDetail) {
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
-    const { cruiseId } = useParams();
+    const { boatId } = useParams();
 
-    const [body, setBody] = useState<ICruiseBody>(cruise);
+    const [body, setBody] = useState<IUpdateBoatRequest>({
+        cruiseId: boat.cruise.id || "",
+        description: boat.description,
+        name: boat.name,
+        optionText: boat.optionText,
+    });
+    const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    useEffect(() => {
+        const fetchCruise = async () => {
+            const response = await cruiseService.list();
+            setCruise(response);
+        };
+
+        fetchCruise();
+    }, []);
+
+    const dataCruise: SelectDataInterface[] = cruise.map((data) => ({
+        value: data.id,
+        name: data.title,
+    }));
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setBody((prev) => ({
             ...prev,
@@ -299,23 +321,19 @@ function ModalCruiseDetail({ setModal, cruise, setLoading, fetchCruise }: propsM
 
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading({ stack: "Submit", field: "Update River Cruise" });
+        setLoading({ stack: "Submit", field: "Update River Boat" });
         try {
-            await api.put(`${process.env.NEXT_PUBLIC_API}/admin/cruise/${cruiseId}`, {
-                title: body.title,
-                subTitle: body.subTitle,
-                duration: body.duration,
-                departure: body.departure,
+            await api.put(`${process.env.NEXT_PUBLIC_API}/admin/boat/${boatId}`, {
+                name: body.name,
                 description: body.description,
-                cta: body.cta,
-                introductionText: body.introductionText,
-                introductionTitle: body.introductionTitle,
+                cruiseId: body.cruiseId,
+                optionText: body.optionText,
             });
 
-            await fetchCruise();
+            await fetchBoat();
             setNotification({
-                title: "Update Cruise",
-                message: "Successfully to update data cruise",
+                title: "Update Boat",
+                message: "Successfully to update data Boat",
             });
             setModal("");
         } catch (error) {
@@ -337,7 +355,7 @@ function ModalCruiseDetail({ setModal, cruise, setLoading, fetchCruise }: propsM
             >
                 {/* Header Modal */}
                 <div className="flex items-center justify-between gap-x-5 p-3 border-b border-black">
-                    <h2>Edit: {cruise.title}</h2>
+                    <h2>Edit: {boat.name}</h2>
                     <button type="button" onClick={() => setModal("")}>
                         <IconX stroke={2} size={18} className="text-brown" />
                     </button>
@@ -345,63 +363,26 @@ function ModalCruiseDetail({ setModal, cruise, setLoading, fetchCruise }: propsM
 
                 <div className="bg-white p-5 flex flex-col gap-y-3 gap-5">
                     <div className="grid grid-cols-2 gap-5">
-                        <InputForm
-                            title="title"
-                            value={body.title}
-                            type="text"
-                            label="Title of Cruise"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
-                        <InputForm
-                            title="subTitle"
-                            value={body.subTitle || ""}
-                            type="text"
-                            label="Subtitle"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
-                        <InputForm
-                            title="departure"
-                            value={body.departure || ""}
-                            type="text"
-                            label="Departure"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
-                        <InputForm
-                            title="duration"
-                            value={body.duration}
-                            type="number"
-                            label="Duration"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
-                        <InputForm
-                            title="introductionTitle"
-                            value={body.introductionTitle || ""}
-                            type="text"
-                            label="Title of Introduction Content Cruise"
-                            isRequired
-                            handleInputChange={handleInputChange}
+                        <InputForm title="name" value={body.name} type="text" label="Name of Boat" isRequired handleInputChange={handleInputChange} />
+                        <SelectForm
+                            data={dataCruise}
+                            label="cruiseId"
+                            onChange={handleInputChange}
+                            value={body.cruiseId || ""}
+                            title="River Cruise"
                         />
 
-                        <InputForm
-                            title="cta"
-                            value={body.cta || ""}
-                            type="text"
-                            label="Call To Action"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
-                        <InputForm
-                            title="introductionText"
-                            value={body.introductionText || ""}
-                            type="text"
-                            label="Text of Introduction Content Cruise"
-                            isRequired
-                            handleInputChange={handleInputChange}
-                        />
+                        <div className="col-span-2">
+                            <InputForm
+                                title="optionText"
+                                value={body.optionText || ""}
+                                type="textarea"
+                                label="Option Text"
+                                isRequired
+                                handleInputChange={handleInputChange}
+                            />
+                        </div>
+
                         <div className="col-span-2">
                             <RichTextEditor
                                 setContent={(content) =>

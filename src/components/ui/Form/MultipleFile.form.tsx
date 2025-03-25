@@ -146,7 +146,7 @@ export const MultipleUploader = ({
     );
 
     const handleFileChange = useCallback(
-        async (e: React.ChangeEvent<HTMLInputElement>) => {
+        async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
             const files = e.target.files;
             if (files && files.length > 0) {
                 // Check if adding these files would exceed the maximum

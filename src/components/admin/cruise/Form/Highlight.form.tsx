@@ -64,7 +64,7 @@ export const HighlightCruiseForm = () => {
                             title={`title`}
                             type="text"
                             value={hl.title}
-                            handleInputChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange(i, e)}
+                            handleInputChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleInputChange(i, e)}
                             label="Judul"
                             isRequired
                             placeholder="Judul highlight..."

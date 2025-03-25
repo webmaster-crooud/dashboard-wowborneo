@@ -147,7 +147,7 @@ function ModalAddNewInclude({
     const setError = useSetAtom(errorAtom);
     const [include, setInclude] = useState<IIncludeBody>({ description: "", title: "" });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setInclude((prev) => ({
             ...prev,
@@ -248,7 +248,7 @@ function ModalEditInclude({
         setInclude(data);
     }, [data]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setInclude((prev) => ({ ...prev, [name]: value }));
     };

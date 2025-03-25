@@ -2,8 +2,8 @@ import {
     Icon24Hours,
     IconFileDatabase,
     IconMail,
-    IconMap2,
     IconPhoneCall,
+    IconShip,
     IconSunriseFilled,
     IconTransfer,
     IconUsersGroup,
@@ -33,21 +33,21 @@ export const mainMenuData: MenuInterface[] = [
     },
 ];
 
-export const AdminMenuData: MenuInterface[] = [
+export const adminMenuData: MenuInterface[] = [
     {
         title: "Cruise",
         icon: <IconSunriseFilled size={25} stroke={1.5} />,
         url: "/admin/cruises",
     },
     {
-        title: "Destination",
-        icon: <IconMap2 size={25} stroke={1.5} />,
-        url: "/admin/destinations",
+        title: "Boat",
+        icon: <IconShip size={25} stroke={1.5} />,
+        url: "/admin/boats",
     },
     {
         title: "Member",
         icon: <IconUsersGroup size={25} stroke={1.5} />,
-        url: "/admin/members",
+        url: "/admin/member",
     },
     {
         title: "Transaction",

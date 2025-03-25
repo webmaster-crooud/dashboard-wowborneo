@@ -148,7 +148,8 @@ function ModalAddGallery({
             await uploadMultipleImages(`photoCruiseId_CRUISE_${cruise.id}`, String(cruise.id), "CRUISE", "PHOTO");
 
             // 6. Bersihkan storage
-            await cleanupStorage();
+            await cleanupStorage("photoCruiseId_CRUISE_", "cruiseBody");
+            localStorage.clear();
             fetchCruise();
             setNotification({
                 title: "Add Galleries River Cruise",

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "framer-motion";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MainCruiseForm } from "~/components/admin/cruise/Form/Main.form";
 import { SideForm } from "~/components/admin/cruise/Form/Side.form";
 import { HeaderAdmin } from "~/components/Header";
@@ -40,12 +40,12 @@ const dataBreadcrumb: Breadcrumb[] = [
     },
 ];
 
-export type FORMSTEP = "MAIN" | "DESTINATION" | "INFORMATION" | "INCLUDE" | "CONTENT" | "HIGHLIGHT" | "REVIEW";
+export type FORMSTEPCRUISE = "MAIN" | "DESTINATION" | "INFORMATION" | "INCLUDE" | "CONTENT" | "HIGHLIGHT" | "REVIEW";
 
 export default function CreateCruisePage() {
     // cruise/create/page.tsx
     const { account } = useAuth();
-    const [stepForm, setStepForm] = useState<FORMSTEP>("MAIN");
+    const [stepForm, setStepForm] = useState<FORMSTEPCRUISE>("MAIN");
     const setError = useSetAtom(errorAtom);
     const [cruise, setCruise] = useAtom(cruiseBodyAtom);
     const [highlights] = useAtom(highlightBodyAtom);
@@ -98,19 +98,14 @@ export default function CreateCruisePage() {
             );
 
             // 6. Bersihkan storage
-            await cleanupStorage();
+            await cleanupStorage("coverCruiseId_", "cruiseBody");
+            await cleanupStorage("photoCruiseId_", "cruiseBody");
+            await cleanupStorage("coverImageId_HIGHLIGHT_", "highlightBody");
+            await cleanupStorage("coverImageId_DESTINATION_", "destinationBody");
+            localStorage.clear();
 
             // Redirect atau tampilkan success message
             window.location.href = "/admin/cruises?notification=Successfully to create data cruise";
-        } catch (error) {
-            fetchError(error, setError);
-        } finally {
-            setLoading({ stack: "", field: "" });
-        }
-    };
-
-    useEffect(
-        () =>
             setCruise({
                 cta: "",
                 departure: "",
@@ -126,9 +121,13 @@ export default function CreateCruisePage() {
                 status: "PENDING",
                 subTitle: "",
                 title: "",
-            }),
-        [setCruise]
-    );
+            });
+        } catch (error) {
+            fetchError(error, setError);
+        } finally {
+            setLoading({ stack: "", field: "" });
+        }
+    };
 
     if (loading.stack === "submit" || loading.stack === "upload") {
         return <LoaderForm loading={loading} />;

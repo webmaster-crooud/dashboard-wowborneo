@@ -53,9 +53,9 @@ export const uploadMultipleImages = async (keyPrefix: string, entityId: string, 
     }
 };
 
-export const cleanupStorage = async () => {
+export const cleanupStorage = async (keyStorage: string, items: string) => {
     // Hapus semua data di localStorage
-    const keysToRemove = [...Object.keys(localStorage).filter((key) => key.startsWith("coverImageId"))];
+    const keysToRemove = [...Object.keys(localStorage).filter((key) => key.startsWith(keyStorage))];
 
     await Promise.all(
         keysToRemove.map(async (key) => {
@@ -67,6 +67,6 @@ export const cleanupStorage = async () => {
         })
     );
 
-    localStorage.clear();
-    localStorage.removeItem("cruiseBody");
+    // localStorage.clear();
+    localStorage.removeItem(items);
 };

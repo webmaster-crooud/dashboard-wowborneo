@@ -13,7 +13,7 @@ import { errorAtom, notificationAtom } from "~/stores";
 
 type propsChangePassword = {
     setEditing: React.Dispatch<SetStateAction<string>>;
-    handleChangeInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleChangeInput: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     setLoading: React.Dispatch<SetStateAction<{ stack: string; field: string }>>;
     fetchAccount: () => Promise<void>;
     changePassword: IChangePassword;

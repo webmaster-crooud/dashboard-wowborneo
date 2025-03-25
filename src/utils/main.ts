@@ -25,3 +25,17 @@ export const formattedDate = new Intl.DateTimeFormat("en-EN", {
     month: "long", // nama bulan, misal "Januari"
     year: "numeric", // tahun
 }).format(now);
+
+const parseCurrencyValue = (val: string) => {
+    const numericValue = parseFloat(val) || 0;
+    return isNaN(numericValue) ? 0 : numericValue;
+};
+
+export const formatCurrency = (val: string) => {
+    const numericValue = parseCurrencyValue(val);
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: 2,
+    }).format(numericValue);
+};

@@ -5,12 +5,12 @@ import { useAtom } from "jotai";
 import { cruiseBodyAtom, highlightBodyAtom, informationBodyAtom, includeBodyAtom, destinationBodyAtom } from "~/stores/cruise.store";
 import { Card } from "~/components/ui/Card";
 
-import { FORMSTEP } from "~/app/admin/cruises/create/page";
+import { FORMSTEPCRUISE } from "~/app/admin/cruises/create/page";
 import { getCoverImage } from "~/lib/idb";
 import Image from "next/image";
 
 interface ReviewCruisePageProps {
-    setStep: React.Dispatch<React.SetStateAction<FORMSTEP>>;
+    setStep: React.Dispatch<React.SetStateAction<FORMSTEPCRUISE>>;
 }
 
 export function ReviewCruisePage({ setStep }: ReviewCruisePageProps) {

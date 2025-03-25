@@ -15,7 +15,7 @@ export const SearchTable: React.FC<propsSearchTable> = ({ search, setSearch, han
     <form onSubmit={handleSearch} className="relative w-full md:w-4/12 overflow-hidden rounded-full border border-gray-300">
         <input
             type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setSearch(e.target.value)}
             value={search}
             placeholder="Search Data..."
             className={twMerge("w-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-600", className)}
