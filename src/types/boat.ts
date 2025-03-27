@@ -1,14 +1,10 @@
 import { STATUS, TYPECABIN } from ".";
-import { ICruiseResponseDetail, IImage } from "./cruise";
+import { IImage } from "./cruise";
 
 export interface IListBoatResponse {
     id: string;
     name: string;
     slug: string | null;
-    cruise: {
-        title: string;
-        id: string;
-    };
     status: STATUS;
     createdAt: Date | string;
     updatedAt: Date | string;
@@ -18,7 +14,6 @@ export interface IBoatRequestBody {
     slug: string | null;
     description: string | null;
     optionText: string | null;
-    cruiseId: string;
     status: STATUS;
     abouts: IAboatRequestBody[]; //
     experiences: IExperienceRequestBody[]; //
@@ -32,7 +27,6 @@ export interface IBoatResponse {
     slug: string | null;
     description: string | null;
     optionText: string | null;
-    cruise: ICruiseResponseDetail;
     cover?: IImage;
     status: STATUS;
     abouts: IAboutResponse[];
@@ -47,7 +41,6 @@ export interface IUpdateBoatRequest {
     name: string;
     description: string | null;
     optionText: string | null;
-    cruiseId: string;
 }
 
 export interface IAboatRequestBody {

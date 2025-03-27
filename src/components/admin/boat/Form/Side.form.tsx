@@ -1,17 +1,15 @@
 import { IconArrowBack, IconArrowRightBar, IconCloudUpload, IconLoader3 } from "@tabler/icons-react";
 import { SetStateAction } from "jotai";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { FORMSTEPBOAT } from "~/app/admin/boats/create/page";
 import { SubmitButton } from "~/components/ui/Button/Submit.button";
 import { Card } from "~/components/ui/Card";
 import { InputForm } from "~/components/ui/Form/Input.form";
 
-import { SelectDataInterface, SelectForm } from "~/components/ui/Form/Select.form";
+import { SelectForm } from "~/components/ui/Form/Select.form";
 import { selectStatus } from "~/constants/Status";
-import cruiseService from "~/services/cruise.service";
 import { Account } from "~/types/auth";
 import { IBoatRequestBody } from "~/types/boat";
-import { ICruiseResponseList } from "~/types/cruise";
 
 type propsSideForm = {
     account: Account;
@@ -23,16 +21,6 @@ type propsSideForm = {
 };
 
 export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, loading, body, setBody }) => {
-    const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
-
-    useEffect(() => {
-        const fetchCruise = async () => {
-            const cruiseData = await cruiseService.list();
-            setCruise(cruiseData);
-        };
-        fetchCruise();
-    }, []);
-
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setBody((prev) => ({
@@ -40,11 +28,6 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
             [name]: value,
         }));
     };
-
-    const dataCruise: SelectDataInterface[] = cruise.map((data) => ({
-        value: data.id,
-        name: data.title,
-    }));
 
     return (
         <Card title="SEO + Meta Data" className="sticky top-5 h-fit z-[2] bg-gray-100">
@@ -56,8 +39,6 @@ export const SideForm: React.FC<propsSideForm> = ({ account, setStep, step, load
                 ) : (
                     <SelectForm data={selectStatus} label="status" value={body.status} onChange={handleInputChange} />
                 )}
-
-                <SelectForm data={dataCruise} title="Cruise" label="cruiseId" value={body.cruiseId} onChange={handleInputChange} />
 
                 {step === "MAIN" && (
                     <SubmitButton

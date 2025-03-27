@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconChevronDown, IconKey, IconLoader2, IconLoader3, IconNotification, IconPower, IconUserCog } from "@tabler/icons-react";
 
 import { useRouter } from "next/navigation";
@@ -10,11 +10,15 @@ import { useSetAtom } from "jotai";
 import { errorAtom } from "~/stores";
 import { fetchError } from "~/utils/fetchError";
 import authService from "~/services/auth.service";
+import { IAccount } from "~/types/account";
+import { api } from "~/utils/api";
+import { ApiSuccessResponse } from "~/types";
 
 export function AccountButton() {
     const { account, isLoading } = useAuth();
     const [menuAccount, setMenuAccount] = useState<boolean>(false);
     const [loading, setLoading] = useState<string>("");
+    const [me, setMe] = useState<IAccount>({ email: "", firstName: "", lastName: "", phone: "", cover: "", id: "", ip: "", role: "", userAgent: "" });
     const setError = useSetAtom(errorAtom);
 
     const router = useRouter();
@@ -31,6 +35,19 @@ export function AccountButton() {
             setLoading("");
         }
     };
+    useEffect(() => {
+        const fetchAccount = async () => {
+            try {
+                const { data } = await api.get<ApiSuccessResponse<IAccount>>(`${process.env.NEXT_PUBLIC_API}/account`, {
+                    withCredentials: true,
+                });
+                setMe(data.data);
+            } catch (error) {
+                fetchError(error, setError);
+            }
+        };
+        fetchAccount();
+    }, [setError]);
     return (
         <div className="relative">
             {isLoading ? (
@@ -49,8 +66,8 @@ export function AccountButton() {
                 >
                     <div className="rounded-full relative overflow-hidden group-hover:rotate-[360deg] bg-black flex items-center justify-center w-12 h-12 group-hover:p-1 object-cover object-center transition-all ease-in-out duration-300">
                         <Image
-                            src={"/assets/Image-not-found.png"}
-                            alt="Photo Profile - First Name"
+                            src={me.cover || "/assets/Image-not-found.png"}
+                            alt={`Photo Profile - ${account.user.firstName}`}
                             width={200}
                             height={200}
                             style={{ width: "100%", height: "auto" }}

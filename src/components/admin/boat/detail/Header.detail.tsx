@@ -1,8 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion as m } from "framer-motion";
 import { Breadcrumb } from "~/components/ui/Breadcrumb";
-import { ICruiseResponseList, IImage } from "~/types/cruise";
+import { IImage } from "~/types/cruise";
 import { SubmitButton } from "~/components/ui/Button/Submit.button";
 import { CanvasImage } from "~/components/ui/CanvasImage";
 import { SetStateAction, useSetAtom } from "jotai";
@@ -35,9 +35,6 @@ import RichTextEditor from "~/components/RichText";
 import { useAuth } from "~/hooks/useAuth";
 import { STATUS } from "~/types";
 import { IBoatResponse, IUpdateBoatRequest } from "~/types/boat";
-import Link from "next/link";
-import cruiseService from "~/services/cruise.service";
-import { SelectDataInterface, SelectForm } from "~/components/ui/Form/Select.form";
 
 type propsHeaderDetailBoat = {
     dataBreadcrumb: Breadcrumb[];
@@ -166,12 +163,6 @@ export function HeaderDetailBoat({ dataBreadcrumb, boat, cover, fetchBoat, setLo
                             <h2 className="uppercase text-gray-700 text-xs font-bold flex items-center justify-start gap-1">
                                 <IconShip size={16} stroke={2} /> Cruise:
                             </h2>
-                            <Link
-                                href={boat.cruise.id || ""}
-                                className="text-xs text-black font-medium hover:text-brown underline-offset-2 underline"
-                            >
-                                {boat.cruise.title}
-                            </Link>
                         </div>
                     </div>
                 </div>
@@ -290,26 +281,10 @@ function ModalBoatDetail({ setModal, boat, setLoading, fetchBoat }: propsModalBo
     const { boatId } = useParams();
 
     const [body, setBody] = useState<IUpdateBoatRequest>({
-        cruiseId: boat.cruise.id || "",
         description: boat.description,
         name: boat.name,
         optionText: boat.optionText,
     });
-    const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
-
-    useEffect(() => {
-        const fetchCruise = async () => {
-            const response = await cruiseService.list();
-            setCruise(response);
-        };
-
-        fetchCruise();
-    }, []);
-
-    const dataCruise: SelectDataInterface[] = cruise.map((data) => ({
-        value: data.id,
-        name: data.title,
-    }));
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -326,7 +301,6 @@ function ModalBoatDetail({ setModal, boat, setLoading, fetchBoat }: propsModalBo
             await api.put(`${process.env.NEXT_PUBLIC_API}/admin/boat/${boatId}`, {
                 name: body.name,
                 description: body.description,
-                cruiseId: body.cruiseId,
                 optionText: body.optionText,
             });
 
@@ -364,13 +338,6 @@ function ModalBoatDetail({ setModal, boat, setLoading, fetchBoat }: propsModalBo
                 <div className="bg-white p-5 flex flex-col gap-y-3 gap-5">
                     <div className="grid grid-cols-2 gap-5">
                         <InputForm title="name" value={body.name} type="text" label="Name of Boat" isRequired handleInputChange={handleInputChange} />
-                        <SelectForm
-                            data={dataCruise}
-                            label="cruiseId"
-                            onChange={handleInputChange}
-                            value={body.cruiseId || ""}
-                            title="River Cruise"
-                        />
 
                         <div className="col-span-2">
                             <InputForm

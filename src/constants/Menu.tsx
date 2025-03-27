@@ -1,10 +1,11 @@
 import {
     Icon24Hours,
+    IconCalendarEvent,
     IconFileDatabase,
     IconMail,
     IconPhoneCall,
     IconShip,
-    IconSunriseFilled,
+    IconSunrise,
     IconTransfer,
     IconUsersGroup,
 } from "@tabler/icons-react";
@@ -36,13 +37,18 @@ export const mainMenuData: MenuInterface[] = [
 export const adminMenuData: MenuInterface[] = [
     {
         title: "Cruise",
-        icon: <IconSunriseFilled size={25} stroke={1.5} />,
+        icon: <IconSunrise size={25} stroke={1.5} />,
         url: "/admin/cruises",
     },
     {
         title: "Boat",
         icon: <IconShip size={25} stroke={1.5} />,
         url: "/admin/boats",
+    },
+    {
+        title: "Schedule",
+        icon: <IconCalendarEvent size={25} stroke={1.5} />,
+        url: "/admin/schedules",
     },
     {
         title: "Member",

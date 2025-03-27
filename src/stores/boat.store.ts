@@ -10,7 +10,6 @@ export const boatBodyAtom = atomWithStorage<IBoatRequestBody>("boatBody", {
     cabins: [], //
     experiences: [],
     facilities: [],
-    cruiseId: "",
     status: "PENDING",
     deck: {
         title: "",

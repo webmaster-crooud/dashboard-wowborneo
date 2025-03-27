@@ -128,7 +128,6 @@ export default function ListBoatPage() {
                 cabins: [], //
                 experiences: [],
                 facilities: [],
-                cruiseId: "",
                 status: "PENDING",
                 deck: {
                     title: "",
