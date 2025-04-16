@@ -1,6 +1,7 @@
 import * as React from "react";
 import { STATUS } from "~/types";
 import { IconChevronDown } from "@tabler/icons-react";
+import { twMerge } from "tailwind-merge";
 
 export interface SelectDataInterface {
     value: string | STATUS;
@@ -15,31 +16,13 @@ type propsSelectForm = {
     disabled?: boolean;
     title?: string;
     onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    className?: string;
+    classIcon?: string;
 };
 
-export function SelectForm({ label, title = "Status", value, onChange, disabled, data = [] }: propsSelectForm) {
+export function SelectForm({ label, title = "Status", value, onChange, disabled, data = [], className, classIcon }: propsSelectForm) {
     return (
-        // <div className="w-full">
-        //     <label className="text-start text-xs font-bold uppercase" htmlFor={label}>
-        //         {title}
-        //     </label>
-        //     <Select value={value} onValueChange={onChange} disabled={disabled}>
-        //         <SelectTrigger className="w-full border-black h-12 rounded-lg focus:outline-none  focus:ring-0 disabled:opacity-60 disabled:bg-gray-200">
-        //             <SelectValue placeholder={placeholder} />
-        //         </SelectTrigger>
-        //         <SelectContent>
-        //             <SelectGroup>
-        //                 <SelectLabel className="capitalize">{label}</SelectLabel>
-        //                 {data.map((data, i) => (
-        //                     <SelectItem value={data.value} defaultValue={data.value} key={i}>
-        //                         {data.name}
-        //                     </SelectItem>
-        //                 ))}
-        //             </SelectGroup>
-        //         </SelectContent>
-        //     </Select>
-        // </div>
-        <div className="w-full">
+        <div className="w-full flex flex-col gap-y-2">
             <label htmlFor={label} className={`uppercase font-bold text-xs ${disabled ? "text-black/70" : "text-black"}`}>
                 {title}
             </label>
@@ -49,7 +32,10 @@ export function SelectForm({ label, title = "Status", value, onChange, disabled,
                     name={label}
                     value={value}
                     defaultValue={value}
-                    className="border appearance-none outline-brown/60 border-black rounded-lg w-full text-black py-3 px-4 text-sm bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:border-black/70"
+                    className={twMerge(
+                        "border appearance-none outline-brown/60 border-black rounded-lg w-full text-black py-3 px-4 text-sm bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:border-black/70",
+                        className
+                    )}
                     onChange={onChange}
                 >
                     <option value="">-- Choose one --</option>
@@ -59,7 +45,7 @@ export function SelectForm({ label, title = "Status", value, onChange, disabled,
                         </option>
                     ))}
                 </select>
-                <IconChevronDown className="absolute top-4 right-3" size={18} stroke={2} />
+                <IconChevronDown className={twMerge("absolute top-4 right-3", classIcon)} size={18} stroke={2} />
             </div>
         </div>
     );

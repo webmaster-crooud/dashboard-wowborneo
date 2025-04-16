@@ -20,7 +20,7 @@ export default function DashboardAdminPage() {
                             <span>/today&apos;s</span>
                         </div>
 
-                        <Link href={"transactions"} className="w-full bg-brown py-2 text-center rounded-xl text-gray-50 font-semibold">
+                        <Link href={"/admin/bookings"} className="w-full bg-brown py-2 text-center rounded-xl text-gray-50 font-semibold">
                             See Transaction
                         </Link>
                     </div>

@@ -39,3 +39,12 @@ export const formatCurrency = (val: string) => {
         minimumFractionDigits: 2,
     }).format(numericValue);
 };
+
+export const formatCurrencyIDR = (val: string) => {
+    const numericValue = parseCurrencyValue(val);
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0,
+    }).format(numericValue);
+};

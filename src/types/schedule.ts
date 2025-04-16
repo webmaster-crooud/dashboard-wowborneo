@@ -33,4 +33,27 @@ export interface IDetailScheduleResponse {
         };
         cabins: Array<{ id: string | number; name: string; type: TYPECABIN; maxCapacity: number; description: string | null; price: string }>;
     };
+    bookingCabins: Array<{
+        cabinId: string | number;
+    }>;
+    addons: IAddonsResponse[];
+}
+
+export interface IAddonsResponse {
+    id: string;
+    title: string;
+    description: string;
+    status: STATUS;
+    cover: string;
+    price: string | number;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+}
+
+export interface IAddonsRequest {
+    title: string;
+    description: string;
+    status: STATUS;
+    cover: string;
+    price: string | number;
 }

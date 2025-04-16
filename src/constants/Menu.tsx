@@ -13,9 +13,9 @@ import { MenuInterface } from "~/types";
 
 export const mainMenuData: MenuInterface[] = [
     {
-        title: "Order History",
+        title: "Booking",
         icon: <IconFileDatabase size={25} stroke={1.5} />,
-        url: "/member/orders",
+        url: "/member/bookings",
     },
     {
         title: "Email",
@@ -31,6 +31,34 @@ export const mainMenuData: MenuInterface[] = [
         title: "Support",
         icon: <Icon24Hours size={25} stroke={1.5} />,
         url: "/member/supports",
+    },
+];
+
+export const agentMenuData: MenuInterface[] = [
+    {
+        title: "Booking",
+        icon: <IconFileDatabase size={25} stroke={1.5} />,
+        url: "/member/bookings",
+    },
+    {
+        title: "Email",
+        icon: <IconMail size={25} stroke={1.5} />,
+        url: "/member/email",
+    },
+    {
+        title: "Contact",
+        icon: <IconPhoneCall size={25} stroke={1.5} />,
+        url: "/member/contacts",
+    },
+    {
+        title: "Support",
+        icon: <Icon24Hours size={25} stroke={1.5} />,
+        url: "/member/supports",
+    },
+    {
+        title: "Schedule",
+        icon: <IconCalendarEvent size={25} stroke={1.5} />,
+        url: "/member/schedules",
     },
 ];
 
@@ -56,8 +84,8 @@ export const adminMenuData: MenuInterface[] = [
         url: "/admin/member",
     },
     {
-        title: "Transaction",
+        title: "Booking",
         icon: <IconTransfer size={25} stroke={1.5} />,
-        url: "/admin/transaction",
+        url: "/admin/bookings",
     },
 ];

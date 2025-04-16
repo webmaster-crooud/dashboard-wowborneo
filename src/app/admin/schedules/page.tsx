@@ -28,7 +28,7 @@ import { errorAtom, notificationAtom } from "~/stores";
 import { ApiSuccessResponse } from "~/types";
 import { IBoatResponse } from "~/types/boat";
 import { ICruiseResponseList } from "~/types/cruise";
-import { IScheduleResponse } from "~/types/schedule";
+import { IAddonsResponse, IScheduleResponse } from "~/types/schedule";
 import { api } from "~/utils/api";
 import { fetchError } from "~/utils/fetchError";
 import { formatCurrency } from "~/utils/main";
@@ -53,7 +53,6 @@ export default function SchedulePage() {
     const [loading, setLoading] = useState<{ stack: string; field?: string }>({ field: "", stack: "" });
     const setError = useSetAtom(errorAtom);
 
-    console.log(schedules);
     const fetchSchedule = useCallback(
         async (filters: { search?: string; date?: string; cruiseId?: string; pax?: string }) => {
             try {
@@ -129,13 +128,13 @@ export default function SchedulePage() {
                     <div className="flex items-center justify-end gap-5">
                         <SubmitButton
                             type="button"
-                            title="Deleted"
+                            title="Addons"
                             onClick={() => {
-                                setLoading({ stack: "route", field: "scheduleDeleted" });
-                                router.push("/admin/schedules/deleted");
+                                setLoading({ stack: "route", field: "addons" });
+                                router.push("/admin/schedules/addons");
                             }}
                             icon={
-                                loading.stack === "route" && loading.field === "scheduleDeleted" ? (
+                                loading.stack === "route" && loading.field === "addons" ? (
                                     <IconLoader3 className="animate-spin" stroke={2} size={18} />
                                 ) : (
                                     <IconDatabase stroke={2} size={18} />
@@ -291,7 +290,12 @@ function ContentScheduleList({ schedules }: { schedules: IScheduleResponse[] }) 
                             <div className="flex flex-col h-full w-full justify-between gap-y-5">
                                 <h5 className="font-extrabold text-xs uppercase text-brown">{schedule.id}</h5>
                                 <div className="flex flex-col gap-y-2">
-                                    <h3 className="text-black font-semibold">{schedule.cruiseTitle}</h3>
+                                    <h3 className="text-black font-semibold">
+                                        {(() => {
+                                            const words = schedule.cruiseTitle.split(" ");
+                                            return words.slice(0, 3).join(" ") + (words.length > 3 ? "..." : "");
+                                        })()}
+                                    </h3>
                                     <div className="flex items-center justify-start gap-3 flex-wrap">
                                         <span className="text-[11px] px-5 py-1 w-fit rounded-full font-bold bg-gradient-to-tr from-gray-100 text-gray-900 via-gray-300 to-gray-400 border border-black flex items-center justify-center gap-1">
                                             {schedule.boatTitle} <IconShip stroke={2} size={13} />
@@ -302,13 +306,13 @@ function ContentScheduleList({ schedules }: { schedules: IScheduleResponse[] }) 
                                     </div>
                                     <span className="text-xs text-gray-600">
                                         <span className="text-xs text-gray-600">
-                                            {new Date(schedule.departureAt).toLocaleDateString("id-ID", {
+                                            {new Date(schedule.departureAt).toLocaleDateString("en-EN", {
                                                 day: "numeric",
                                                 month: "long",
                                                 year: "numeric",
                                             })}{" "}
                                             -{" "}
-                                            {new Date(schedule.arrivalAt).toLocaleDateString("id-ID", {
+                                            {new Date(schedule.arrivalAt).toLocaleDateString("en-EN", {
                                                 day: "numeric",
                                                 month: "long",
                                                 year: "numeric",
@@ -357,9 +361,20 @@ type propsModalAddSchedule = {
     fetchSchedule: (filters: { search: string; date: string; cruiseId: string; pax: string }) => Promise<void>;
 };
 function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading, fetchSchedule }: propsModalAddSchedule) {
-    const [body, setBody] = useState<{ cruiseId: string; departureAt: Date | string; boatId: string }>({ cruiseId: "", departureAt: "", boatId: "" });
+    const [body, setBody] = useState<{ cruiseId: string; departureAt: Date | string; boatId: string; addons: { addonId: string }[] }>({
+        cruiseId: "",
+        departureAt: "",
+        boatId: "",
+        addons: [],
+    });
+    const [allAddons, setAllAddons] = useState<IAddonsResponse[]>([]);
+    const [selectedAddons, setSelectedAddons] = useState<IAddonsResponse[]>([]);
+    const [availableAddons, setAvailableAddons] = useState<IAddonsResponse[]>([]);
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
+
+    console.log(availableAddons);
+    console.log(selectedAddons);
     const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setBody((prev) => ({
@@ -368,13 +383,73 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
         }));
     };
 
+    const handleAddonSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = e.target.value;
+        console.log(selectedId);
+        if (!selectedId) return;
+
+        const selectedAddon = availableAddons.find((a) => Number(a.id) === Number(selectedId));
+        if (!selectedAddon) return;
+
+        // Add to selected addons
+        setSelectedAddons((prev) => [...prev, selectedAddon]);
+
+        // Update body for form submission
+        setBody((prev) => ({
+            ...prev,
+            addons: [...prev.addons, { addonId: selectedAddon.id }],
+        }));
+
+        // Remove from available addons
+        setAvailableAddons((prev) => prev.filter((a) => Number(a.id) !== Number(selectedId)));
+
+        // Reset select value
+        e.target.value = "";
+    };
+
+    const handleRemoveAddon = (addonId: number) => {
+        // Remove from selected addons
+        setSelectedAddons((prev) => prev.filter((a) => Number(a.id) !== Number(addonId)));
+
+        // Update body for form submission
+        setBody((prev) => ({
+            ...prev,
+            addons: prev.addons.filter((a) => Number(a.addonId) !== Number(addonId)),
+        }));
+
+        // Add back to available addons
+        const addonToReturn = allAddons.find((a) => Number(a.id) === Number(addonId));
+        if (addonToReturn) {
+            setAvailableAddons((prev) => [...prev, addonToReturn].sort((a, b) => a.title.localeCompare(b.title)));
+        }
+    };
+
+    useEffect(() => {
+        async function fetchAddon() {
+            try {
+                const { data } = await api.get<ApiSuccessResponse<IAddonsResponse[]>>(`${process.env.NEXT_PUBLIC_API}/admin/addon`);
+                setAllAddons(data.data);
+                setAvailableAddons(data.data);
+            } catch (error) {
+                fetchError(error, setError);
+            }
+        }
+
+        fetchAddon();
+    }, [setError]);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading({ stack: "submit", field: "Add new Schedule" });
         try {
             await api.post(
                 `${process.env.NEXT_PUBLIC_API}/admin/schedule`,
-                { cruiseId: body.cruiseId, departureAt: body.departureAt, boatId: body.boatId },
+                {
+                    cruiseId: body.cruiseId,
+                    departureAt: body.departureAt,
+                    boatId: body.boatId,
+                    addons: body.addons,
+                },
                 { withCredentials: true }
             );
             setNotification({
@@ -389,6 +464,7 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
             setLoading({ stack: "", field: "" });
         }
     };
+
     return (
         <div className="fixed top-0 left-0 right-0 w-full py-24 bg-white/20 backdrop-blur-sm z-50 h-screen flex items-start justify-center">
             <Card
@@ -415,6 +491,7 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
                             name="departureAt"
                             value={String(body.departureAt)}
                             onChange={handleInputChange}
+                            required
                         />
                     </div>
 
@@ -431,6 +508,7 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
                             value={body.cruiseId}
                             onChange={handleInputChange}
                             className="outline-none appearance-none w-full bg-transparent"
+                            required
                         >
                             <option value={""}>-- Choose Cruise --</option>
                             {dataCruise.map((cruise, i) => (
@@ -454,6 +532,7 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
                             value={body.boatId}
                             onChange={handleInputChange}
                             className="outline-none appearance-none w-full bg-transparent"
+                            required
                         >
                             <option value={""}>-- Choose Boat --</option>
                             {dataBoat.map((data, i) => (
@@ -464,9 +543,72 @@ function ModalAddSchedule({ loading, dataCruise, setModal, dataBoat, setLoading,
                         </select>
                     </div>
 
-                    <div />
-                    <div />
-                    <SubmitButton title="Save" icon={<IconCloudUpload stroke={2} size={18} />} type="submit" />
+                    {/* Addons Selection */}
+                    <div className="col-span-3">
+                        <label htmlFor="addons" className="text-xs font-bold uppercase block mb-1">
+                            Addons
+                        </label>
+                        <div className="flex gap-4">
+                            {/* Addon Selector */}
+                            <div className="flex-1">
+                                <div className="w-full flex items-center justify-start relative px-2 gap-2 py-2 rounded-lg text-sm bg-gray-50 border border-black shadow-md">
+                                    <IconPlus size={23} stroke={2} />
+                                    <select
+                                        name="addonId"
+                                        onChange={handleAddonSelect}
+                                        className="outline-none appearance-none w-full bg-transparent"
+                                        disabled={availableAddons.length === 0}
+                                    >
+                                        <option value="">{availableAddons.length === 0 ? "No addons available" : "-- Select Addon --"}</option>
+                                        {availableAddons.map((add, i) => (
+                                            <option value={add.id} key={i}>
+                                                {add.title} - {formatCurrency(String(add.price))}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Selected Addons Container */}
+                            <div className="flex-1">
+                                <div className="border border-gray-300 rounded-lg p-3 min-h-[44px]">
+                                    {selectedAddons.length === 0 ? (
+                                        <p className="text-gray-400 text-sm">No addons selected</p>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedAddons.map((add, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="bg-blue-50 border border-blue-100 rounded-md px-3 py-1 flex items-center gap-2"
+                                                >
+                                                    <span className="text-sm text-blue-800">
+                                                        {add.title} ({formatCurrency(String(add.price))})
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveAddon(Number(add.id))}
+                                                        className="text-red-500 hover:text-red-700 transition-colors"
+                                                        title="Remove addon"
+                                                    >
+                                                        <IconX size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-span-3 flex justify-end">
+                        <SubmitButton
+                            title="Save"
+                            icon={<IconCloudUpload stroke={2} size={18} />}
+                            type="submit"
+                            disabled={loading.stack === "submit"}
+                        />
+                    </div>
                 </form>
             </Card>
         </div>

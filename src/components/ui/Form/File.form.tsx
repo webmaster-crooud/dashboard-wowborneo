@@ -19,7 +19,8 @@ export const CoverUploader = ({ entityType, entityId, storageKeyPrefix = "cover"
 
     const handleFileChange = useCallback(
         async (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-            const file = e.target.files?.[0];
+            const target = e.target as HTMLInputElement;
+            const file = target.files?.[0];
             if (file) await uploadCover(file);
         },
         [uploadCover]

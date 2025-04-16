@@ -1,3 +1,5 @@
+import { STATUS } from ".";
+
 export interface AccountFormInterface {
     firstName: string;
     lastName: string;
@@ -40,6 +42,10 @@ export interface IAccount {
     ip?: string;
     userAgent?: string;
     cover?: string;
+    status?: STATUS;
+    updatedAt?: Date | string;
+    createdAt?: Date | string;
+    roleId: number;
 }
 export interface IAccountRequestBody {
     firstName: string;

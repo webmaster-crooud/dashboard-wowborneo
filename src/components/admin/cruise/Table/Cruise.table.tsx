@@ -14,7 +14,7 @@ import { ApiSuccessResponse, STATUS } from "~/types";
 
 export function CruiseTable() {
     const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
-    const [search, setSearch] = useState<string>("");
+    const [search, setSearch] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState<{ stack: string; idx: string }>({ stack: "", idx: "" });
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);

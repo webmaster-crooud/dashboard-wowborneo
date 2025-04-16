@@ -7,6 +7,7 @@ import {
     IconCloudUpload,
     IconFilter,
     IconLoader3,
+    IconPlus,
     IconShip,
     IconStarFilled,
     IconX,
@@ -30,7 +31,7 @@ import { errorAtom, notificationAtom } from "~/stores";
 import { ApiSuccessResponse, STATUS } from "~/types";
 import { IBoatResponse } from "~/types/boat";
 import { ICruiseResponseList } from "~/types/cruise";
-import { IDetailScheduleResponse } from "~/types/schedule";
+import { IAddonsResponse, IDetailScheduleResponse } from "~/types/schedule";
 import { api } from "~/utils/api";
 import { fetchError } from "~/utils/fetchError";
 import { formatCurrency } from "~/utils/main";
@@ -72,6 +73,8 @@ export default function DetailSchedule() {
         departureAt: "",
         id: "",
         status: "PENDING",
+        addons: [],
+        bookingCabins: [],
     });
     const [loading, setLoading] = useState<{ stack: string; field?: string }>({ field: "", stack: "" });
     const [modal, setModal] = useState<"update" | null>(null);
@@ -100,7 +103,6 @@ export default function DetailSchedule() {
     }, [fetchDetailSchedule]);
 
     const handleAction = async (scheduleId: string, action: STATUS) => {
-        console.log(action);
         try {
             const { data } = await api.patch<ApiSuccessResponse<{ status: string }>>(
                 `${process.env.NEXT_PUBLIC_API}/admin/schedule/${scheduleId}?action=${action}`,
@@ -119,6 +121,14 @@ export default function DetailSchedule() {
             fetchError(error, setError);
         }
     };
+    const getBookedCount = (cabinId: string | number) => {
+        return data.bookingCabins.filter((booking) => String(booking.cabinId) === String(cabinId)).length;
+    };
+
+    const log = getBookedCount(2);
+    console.log(log);
+    console.log(data.bookingCabins);
+    console.log(data.boat.cabins);
     if (loading.stack === "fetch") {
         return <LoaderForm key={"loaderFetchSchedule"} loading={{ stack: "fetch", field: loading.field }} />;
     }
@@ -196,7 +206,7 @@ export default function DetailSchedule() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-y-3">
-                                    <h1 className="font-semibold text-xl">Title Of Cruise</h1>
+                                    <h1 className="font-semibold text-xl">{data.cruise.title}</h1>
                                     <span className="text-xs text-gray-600">
                                         {formatDateOnly(String(data.departureAt))} - {formatDateOnly(String(data.arrivalAt))}
                                     </span>
@@ -235,7 +245,10 @@ export default function DetailSchedule() {
                                             </div>
                                             <div>
                                                 <p className="font-extrabold text-xs uppercase bg-brown rounded-full px-3 py-1 text-gray-50 w-fit">
-                                                    0/{cabin.maxCapacity}
+                                                    {(() => {
+                                                        const booked = getBookedCount(cabin.id);
+                                                        return booked !== 0 ? "Booked" : `0/${cabin.maxCapacity}`;
+                                                    })()}
                                                 </p>
                                                 <p className="font-extrabold mt-2 text-xs uppercase bg-brown rounded-full px-3 py-1 text-gray-50 w-fit">
                                                     {cabin.type}
@@ -269,9 +282,26 @@ type propsModalUpdateSchedule = {
     fetchSchedule: () => Promise<void>;
 };
 function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, schedule }: propsModalUpdateSchedule) {
-    const [body, setBody] = useState<{ cruiseId: string; departureAt: Date | string; boatId: string }>({ cruiseId: "", departureAt: "", boatId: "" });
+    const [body, setBody] = useState<{
+        cruiseId: string;
+        departureAt: Date | string;
+        boatId: string;
+        addons: { addonId: string }[];
+    }>({
+        cruiseId: "",
+        departureAt: "",
+        boatId: "",
+        addons: [],
+    });
+
+    console.log(body);
+
     const [cruise, setCruise] = useState<ICruiseResponseList[]>([]);
     const [boat, setBoat] = useState<IBoatResponse[]>([]);
+    const [allAddons, setAllAddons] = useState<IAddonsResponse[]>([]);
+    const [selectedAddons, setSelectedAddons] = useState<IAddonsResponse[]>([]);
+    const [availableAddons, setAvailableAddons] = useState<IAddonsResponse[]>([]);
+
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
 
@@ -279,10 +309,12 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
         value: data.id,
         name: data.title,
     }));
+
     const dataBoat: SelectDataInterface[] = boat.map((data) => ({
         value: data.id,
         name: data.name,
     }));
+
     const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setBody((prev) => ({
@@ -291,39 +323,107 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
         }));
     };
 
+    const handleAddonSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedId = e.target.value;
+        if (!selectedId) return;
+
+        const selectedAddon = availableAddons.find((a) => String(a.id) === String(selectedId));
+        if (!selectedAddon) return;
+
+        // Add to selected addons
+        setSelectedAddons((prev) => [...prev, selectedAddon]);
+
+        // Update body for form submission
+        setBody((prev) => ({
+            ...prev,
+            addons: [...prev.addons, { addonId: String(selectedAddon.id) }],
+        }));
+
+        // Remove from available addons
+        setAvailableAddons((prev) => prev.filter((a) => String(a.id) !== String(selectedId)));
+
+        // Reset select value
+        e.target.value = "";
+    };
+
+    const handleRemoveAddon = (addonId: string) => {
+        // Remove from selected addons
+        setSelectedAddons((prev) => prev.filter((a) => String(a.id) !== String(addonId)));
+
+        // Update body for form submission
+        setBody((prev) => ({
+            ...prev,
+            addons: prev.addons.filter((a) => a.addonId !== String(addonId)),
+        }));
+
+        // Add back to available addons
+        const addonToReturn = allAddons.find((a) => String(a.id) === String(addonId));
+        if (addonToReturn) {
+            setAvailableAddons((prev) => [...prev, addonToReturn].sort((a, b) => a.title.localeCompare(b.title)));
+        }
+    };
+
     useEffect(() => {
-        const fetchCruise = async () => {
-            setLoading({ stack: "fetchDetail", field: "Cruise" });
+        const fetchInitialData = async () => {
+            setLoading({ stack: "fetchDetail", field: "Loading data" });
             try {
-                const result = await cruiseService.list();
-                setCruise(result);
-            } catch (error) {
-                fetchError(error, setError);
-            } finally {
-                setLoading({ field: "", stack: "" });
-            }
-        };
-        const fetchBoat = async () => {
-            setLoading({ stack: "fetchDetail", field: "Boats" });
-            try {
-                const { data } = await api.get<ApiSuccessResponse<IBoatResponse[]>>(`${process.env.NEXT_PUBLIC_API}/admin/boat`, {
+                // Fetch cruise data
+                const cruiseResult = await cruiseService.list();
+                setCruise(cruiseResult);
+
+                // Fetch boat data
+                const boatResponse = await api.get<ApiSuccessResponse<IBoatResponse[]>>(`${process.env.NEXT_PUBLIC_API}/admin/boat`, {
                     withCredentials: true,
                 });
-                setBoat(data.data);
+                setBoat(boatResponse.data.data);
+
+                // Fetch addons data
+                const addonsResponse = await api.get<ApiSuccessResponse<IAddonsResponse[]>>(`${process.env.NEXT_PUBLIC_API}/admin/addon`);
+                setAllAddons(addonsResponse.data.data);
+
+                // If schedule exists, set initial values
+                if (schedule) {
+                    // Initialize body with correct addon structure
+                    setBody({
+                        boatId: schedule.boat.id,
+                        cruiseId: schedule.cruise.id,
+                        departureAt: schedule.departureAt,
+                        addons: schedule.addons?.map((a) => ({ addonId: String(a.id) })) || [],
+                    });
+
+                    // Set selected addons
+                    if (schedule.addons) {
+                        setSelectedAddons(
+                            schedule.addons.map((a) => ({
+                                id: String(a.id),
+                                title: a.title,
+                                price: a.price,
+                                cover: "",
+                                createdAt: "",
+                                description: "",
+                                updatedAt: "",
+                                status: "ACTIVED",
+                            }))
+                        );
+                    }
+
+                    // Set available addons (all addons minus selected ones)
+                    if (schedule.addons && addonsResponse.data.data) {
+                        const selectedAddonIds = schedule.addons.map((a) => String(a.id));
+                        setAvailableAddons(addonsResponse.data.data.filter((a) => !selectedAddonIds.includes(String(a.id))));
+                    } else {
+                        setAvailableAddons(addonsResponse.data.data);
+                    }
+                }
             } catch (error) {
                 fetchError(error, setError);
             } finally {
                 setLoading({ field: "", stack: "" });
             }
         };
-        fetchCruise();
-        fetchBoat();
-    }, [setError, fetchSchedule, setLoading]);
-    useEffect(() => {
-        if (schedule) {
-            setBody({ boatId: schedule.boat.id, cruiseId: schedule.cruise.id, departureAt: schedule.departureAt });
-        }
-    }, [schedule]);
+
+        fetchInitialData();
+    }, [schedule, setError, setLoading]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -331,12 +431,17 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
         try {
             await api.put(
                 `${process.env.NEXT_PUBLIC_API}/admin/schedule/${schedule.id}`,
-                { cruiseId: body.cruiseId, departureAt: body.departureAt, boatId: body.boatId },
+                {
+                    cruiseId: body.cruiseId,
+                    departureAt: body.departureAt,
+                    boatId: body.boatId,
+                    addons: body.addons,
+                },
                 { withCredentials: true }
             );
             setNotification({
                 title: "Update Schedule",
-                message: "Successfully to update schedule",
+                message: "Successfully updated schedule",
             });
             fetchSchedule();
             setModal(null);
@@ -346,6 +451,7 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
             setLoading({ stack: "", field: "" });
         }
     };
+
     return (
         <div className="fixed top-0 left-0 right-0 w-full py-24 bg-white/20 backdrop-blur-sm z-50 h-screen flex items-start justify-center">
             <Card
@@ -362,6 +468,7 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
                 }
             >
                 <form onSubmit={handleSubmit} className="grid grid-cols-3 items-end w-full gap-5">
+                    {/* Date Input */}
                     <div>
                         <label htmlFor="departureAt" className="text-xs font-bold uppercase">
                             Event Schedule
@@ -380,22 +487,23 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
                                       )}`;
                             })()}
                             onChange={handleInputChange}
+                            required
                         />
                     </div>
 
-                    {/* Select Cruise */}
+                    {/* Cruise Select */}
                     <div className="w-full flex items-center justify-start relative px-2 gap-2 py-2 rounded-lg text-sm bg-gray-50 border border-black shadow-md">
                         {loading.stack === "fetchDetail" ? (
                             <IconLoader3 className="animate-spin" size={23} stroke={2} />
                         ) : (
                             <IconFilter size={23} stroke={2} />
                         )}
-
                         <select
                             name="cruiseId"
                             value={body.cruiseId}
                             onChange={handleInputChange}
                             className="outline-none appearance-none w-full bg-transparent"
+                            required
                         >
                             <option value={""}>-- Choose Cruise --</option>
                             {dataCruise.map((cruise, i) => (
@@ -406,19 +514,19 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
                         </select>
                     </div>
 
-                    {/* Select Boat */}
+                    {/* Boat Select */}
                     <div className="w-full flex items-center justify-start relative px-2 gap-2 py-2 rounded-lg text-sm bg-gray-50 border border-black shadow-md">
                         {loading.stack === "fetchDetail" ? (
                             <IconLoader3 className="animate-spin" size={23} stroke={2} />
                         ) : (
                             <IconShip size={23} stroke={2} />
                         )}
-
                         <select
                             name="boatId"
                             value={body.boatId}
                             onChange={handleInputChange}
                             className="outline-none appearance-none w-full bg-transparent"
+                            required
                         >
                             <option value={""}>-- Choose Boat --</option>
                             {dataBoat.map((data, i) => (
@@ -429,9 +537,72 @@ function ModalUpdateSchedule({ loading, setModal, setLoading, fetchSchedule, sch
                         </select>
                     </div>
 
-                    <div />
-                    <div />
-                    <SubmitButton title="Update" icon={<IconCloudUpload stroke={2} size={18} />} type="submit" />
+                    {/* Addons Selection */}
+                    <div className="col-span-3">
+                        <label htmlFor="addons" className="text-xs font-bold uppercase block mb-1">
+                            Addons
+                        </label>
+                        <div className="flex gap-4">
+                            {/* Addon Selector */}
+                            <div className="flex-1">
+                                <div className="w-full flex items-center justify-start relative px-2 gap-2 py-2 rounded-lg text-sm bg-gray-50 border border-black shadow-md">
+                                    <IconPlus size={23} stroke={2} />
+                                    <select
+                                        name="addons"
+                                        onChange={handleAddonSelect}
+                                        className="outline-none appearance-none w-full bg-transparent"
+                                        disabled={availableAddons.length === 0 || loading.stack === "fetchDetail"}
+                                    >
+                                        <option value="">{availableAddons.length === 0 ? "No addons available" : "-- Select Addon --"}</option>
+                                        {availableAddons.map((add, i) => (
+                                            <option value={add.id} key={i}>
+                                                {add.title} - {formatCurrency(String(add.price))}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Selected Addons Container */}
+                            <div className="flex-1">
+                                <div className="border border-gray-300 rounded-lg p-3 min-h-[44px]">
+                                    {selectedAddons.length === 0 ? (
+                                        <p className="text-gray-400 text-sm">No addons selected</p>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedAddons.map((add, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="bg-blue-50 border border-blue-100 rounded-md px-3 py-1 flex items-center gap-2"
+                                                >
+                                                    <span className="text-sm text-blue-800">
+                                                        {add.title} ({formatCurrency(String(add.price))}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveAddon(add.id)}
+                                                        className="text-red-500 hover:text-red-700 transition-colors"
+                                                        title="Remove addon"
+                                                    >
+                                                        <IconX size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="col-span-3 flex justify-end">
+                        <SubmitButton
+                            title="Update"
+                            icon={<IconCloudUpload stroke={2} size={18} />}
+                            type="submit"
+                            disabled={loading.stack === "submit" || loading.stack === "fetchDetail"}
+                        />
+                    </div>
                 </form>
             </Card>
         </div>
