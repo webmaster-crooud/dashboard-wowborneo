@@ -4,6 +4,7 @@ import {
     IconFileDatabase,
     IconMail,
     IconPhoneCall,
+    IconReceiptRefund,
     IconShip,
     IconSunrise,
     IconTransfer,
@@ -16,6 +17,11 @@ export const mainMenuData: MenuInterface[] = [
         title: "Booking",
         icon: <IconFileDatabase size={25} stroke={1.5} />,
         url: "/member/bookings",
+    },
+    {
+        title: "Refund",
+        icon: <IconReceiptRefund size={25} stroke={1.5} />,
+        url: "/member/bookings/refunds",
     },
     {
         title: "Email",
@@ -39,6 +45,11 @@ export const agentMenuData: MenuInterface[] = [
         title: "Booking",
         icon: <IconFileDatabase size={25} stroke={1.5} />,
         url: "/member/bookings",
+    },
+    {
+        title: "Refund",
+        icon: <IconReceiptRefund size={25} stroke={1.5} />,
+        url: "/member/bookings/refunds",
     },
     {
         title: "Email",
@@ -87,5 +98,10 @@ export const adminMenuData: MenuInterface[] = [
         title: "Booking",
         icon: <IconTransfer size={25} stroke={1.5} />,
         url: "/admin/bookings",
+    },
+    {
+        title: "Refund",
+        icon: <IconReceiptRefund size={25} stroke={1.5} />,
+        url: "/admin/refunds",
     },
 ];

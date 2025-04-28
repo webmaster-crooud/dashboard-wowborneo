@@ -62,106 +62,108 @@ export function BoatTable() {
             </div>
 
             {/* Table */}
-            <table className="w-full text-left border-collapse">
-                {/* Table Head */}
-                <thead>
-                    <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
-                        <th className="px-4 py-2 font-bold">Name</th>
-                        <th className="px-4 py-2 font-bold">Slug</th>
-                        <th className="px-4 py-2 font-bold">Status</th>
-                        <th className="px-4 py-2 font-bold">Date</th>
-                        <th className="px-4 py-2 font-bold">Setting</th>
-                    </tr>
-                </thead>
-
-                {/* Table Body */}
-                <tbody>
-                    {boats.length === 0 ? (
-                        <tr className="border-b border-gray-200">
-                            <td className="px-4 py-3 text-nowrap text-center font-bold text-gray-600" colSpan={6}>
-                                Boats is empty
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                    {/* Table Head */}
+                    <thead>
+                        <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
+                            <th className="px-4 py-2 font-bold">Name</th>
+                            <th className="px-4 py-2 font-bold">Slug</th>
+                            <th className="px-4 py-2 font-bold">Status</th>
+                            <th className="px-4 py-2 font-bold">Date</th>
+                            <th className="px-4 py-2 font-bold">Setting</th>
                         </tr>
-                    ) : (
-                        boats.map((boat, i) => (
-                            <tr className="border-b border-gray-200" key={i}>
-                                <td className="px-4 py-3 text-nowrap flex items-center justify-start gap-2">
-                                    {boat.status === "PENDING" ? (
-                                        <button disabled className="cursor-not-allowed">
-                                            <IconStar size={18} stroke={1.5} />
-                                        </button>
-                                    ) : (
-                                        <button onClick={() => handleAction(boat.id, boat.status === "FAVOURITED" ? "ACTIVED" : "FAVOURITED")}>
-                                            {loading.stack === "favourited" && loading.idx === boat.id ? (
-                                                <IconLoader3 className="animate-spin" size={18} stroke={1.5} />
-                                            ) : boat.status === "FAVOURITED" ? (
-                                                <IconStarFilled className="text-orange-600" size={18} stroke={1.5} />
-                                            ) : (
-                                                <IconStar size={18} stroke={1.5} />
-                                            )}
-                                        </button>
-                                    )}
-                                    <span>{boat.name}</span>
-                                </td>
-                                <td className="px-4 py-3 text-nowrap">{boat.slug}</td>
+                    </thead>
 
-                                <td className="px-4 py-3 text-nowrap">
-                                    <span
-                                        className={`${
-                                            boat.status === "ACTIVED"
-                                                ? "bg-cyan-700"
-                                                : boat.status === "FAVOURITED"
-                                                ? "bg-orange-700"
-                                                : boat.status === "DELETED"
-                                                ? "bg-red-700"
-                                                : "bg-gray-700"
-                                        } text-white px-5 py-1 rounded-full text-[11px] uppercase font-bold`}
-                                    >
-                                        {boat.status}
-                                    </span>
-                                </td>
-                                <td className="px-4 py-3 text-nowrap">{formatDate(boat.updatedAt)}</td>
-                                <td className="px-4 py-3 text-nowrap">
-                                    <div className="flex gap-2">
-                                        <Link
-                                            href={`/admin/boats/${boat.id}`}
-                                            className="px-3 py-1 text-xs bg-cyan-600 text-white rounded-md font-medium"
-                                        >
-                                            Info
-                                        </Link>
-                                        <button
-                                            onClick={() => handleAction(boat.id, "DELETED")}
-                                            className="px-3 py-1 text-xs bg-red-600 text-white rounded-md font-medium"
-                                            disabled={loading.stack === "DELETED" && loading.idx === boat.id}
-                                        >
-                                            {loading.stack === "DELETED" && loading.idx === boat.id ? "Loading..." : "Delete"}
-                                        </button>
-                                    </div>
+                    {/* Table Body */}
+                    <tbody>
+                        {boats.length === 0 ? (
+                            <tr className="border-b border-gray-200">
+                                <td className="px-4 py-3 text-nowrap text-center font-bold text-gray-600" colSpan={6}>
+                                    Boats is empty
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
+                        ) : (
+                            boats.map((boat, i) => (
+                                <tr className="border-b border-gray-200" key={i}>
+                                    <td className="px-4 py-3 text-nowrap flex items-center justify-start gap-2">
+                                        {boat.status === "PENDING" ? (
+                                            <button disabled className="cursor-not-allowed">
+                                                <IconStar size={18} stroke={1.5} />
+                                            </button>
+                                        ) : (
+                                            <button onClick={() => handleAction(boat.id, boat.status === "FAVOURITED" ? "ACTIVED" : "FAVOURITED")}>
+                                                {loading.stack === "favourited" && loading.idx === boat.id ? (
+                                                    <IconLoader3 className="animate-spin" size={18} stroke={1.5} />
+                                                ) : boat.status === "FAVOURITED" ? (
+                                                    <IconStarFilled className="text-orange-600" size={18} stroke={1.5} />
+                                                ) : (
+                                                    <IconStar size={18} stroke={1.5} />
+                                                )}
+                                            </button>
+                                        )}
+                                        <span>{boat.name}</span>
+                                    </td>
+                                    <td className="px-4 py-3 text-nowrap">{boat.slug}</td>
 
-                {/* Table Footer (untuk pagination/numbering) */}
-                <tfoot className="bg-gray-200">
-                    <tr>
-                        <td colSpan={6} className="px-4 py-2">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">Showing 1-2 of 2</span>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
-                                        <span className="text-lg">&laquo;</span> Previous
-                                    </button>
-                                    <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
-                                        Next <span className="text-lg">&raquo;</span>
-                                    </button>
+                                    <td className="px-4 py-3 text-nowrap">
+                                        <span
+                                            className={`${
+                                                boat.status === "ACTIVED"
+                                                    ? "bg-cyan-700"
+                                                    : boat.status === "FAVOURITED"
+                                                    ? "bg-orange-700"
+                                                    : boat.status === "DELETED"
+                                                    ? "bg-red-700"
+                                                    : "bg-gray-700"
+                                            } text-white px-5 py-1 rounded-full text-[11px] uppercase font-bold`}
+                                        >
+                                            {boat.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-nowrap">{formatDate(boat.updatedAt)}</td>
+                                    <td className="px-4 py-3 text-nowrap">
+                                        <div className="flex gap-2">
+                                            <Link
+                                                href={`/admin/boats/${boat.id}`}
+                                                className="px-3 py-1 text-xs bg-cyan-600 text-white rounded-md font-medium"
+                                            >
+                                                Info
+                                            </Link>
+                                            <button
+                                                onClick={() => handleAction(boat.id, "DELETED")}
+                                                className="px-3 py-1 text-xs bg-red-600 text-white rounded-md font-medium"
+                                                disabled={loading.stack === "DELETED" && loading.idx === boat.id}
+                                            >
+                                                {loading.stack === "DELETED" && loading.idx === boat.id ? "Loading..." : "Delete"}
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+
+                    {/* Table Footer (untuk pagination/numbering) */}
+                    <tfoot className="bg-gray-200">
+                        <tr>
+                            <td colSpan={6} className="px-4 py-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Showing 1-2 of 2</span>
+                                    <div className="flex gap-2">
+                                        <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
+                                            <span className="text-lg">&laquo;</span> Previous
+                                        </button>
+                                        <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
+                                            Next <span className="text-lg">&raquo;</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     );
 }

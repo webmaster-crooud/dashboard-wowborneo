@@ -62,12 +62,12 @@ const dataStatusPayment: SelectDataInterface[] = [
         value: "DONE",
     },
 ];
-export default function MemberBookings() {
+export default function MemberBookingsRefund() {
     const { account } = useAuth();
     const [bookings, setBookings] = useState<IMemberBookingListResponse[]>([]);
     const router = useRouter();
     const fetchBookings = useCallback(async () => {
-        const { data } = await api.get<ApiSuccessResponse<IMemberBookingListResponse[]>>(`${process.env.NEXT_PUBLIC_API}/member/booking`, {
+        const { data } = await api.get<ApiSuccessResponse<IMemberBookingListResponse[]>>(`${process.env.NEXT_PUBLIC_API}/member/booking/refund`, {
             withCredentials: true,
         });
         setBookings(data.data);
@@ -92,7 +92,7 @@ export default function MemberBookings() {
             <section className="min-h-screen p-5 flex flex-col gap-y-5">
                 {/* Header */}
                 <div className="flex items-center justify-between gap-5">
-                    <h1 className="font-bold text-3xl">Booking History</h1>
+                    <h1 className="font-bold text-3xl">Booking Refund History</h1>
 
                     <SubmitButton
                         title="Booking Cruise"

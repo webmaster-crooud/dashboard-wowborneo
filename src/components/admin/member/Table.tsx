@@ -17,7 +17,7 @@ import { useAuth } from "~/hooks/useAuth";
 export function MemberTable() {
     const { account } = useAuth();
     const [member, setMember] = useState<IAccount[]>([]);
-    const [search, setSearch] = useState<string | undefined>(undefined);
+    const [search, setSearch] = useState<string>("");
     const [loading, setLoading] = useState<{ stack: string; idx: string }>({ stack: "", idx: "" });
     const setError = useSetAtom(errorAtom);
     const setNotification = useSetAtom(notificationAtom);
@@ -78,119 +78,125 @@ export function MemberTable() {
             </div>
 
             {/* Table */}
-            <table className="w-full text-left border-collapse overflow-x-scroll">
-                {/* Table Head */}
-                <thead>
-                    <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
-                        <th className="px-4 py-2 font-bold">Name</th>
-                        <th className="px-4 py-2 font-bold">EMail</th>
-                        <th className="px-4 py-2 font-bold">Role</th>
-                        <th className="px-4 py-2 font-bold">Status</th>
-                        <th className="px-4 py-2 font-bold">Date</th>
-                        <th className="px-4 py-2 font-bold">Setting</th>
-                    </tr>
-                </thead>
-
-                {/* Table Body */}
-                <tbody className="overflow-x-scroll">
-                    {member.length === 0 ? (
-                        <tr className="border-b border-gray-200">
-                            <td className="px-4 py-3 text-nowrap text-center font-bold text-gray-600" colSpan={6}>
-                                Member is empty
-                            </td>
+            <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse overflow-x-scroll">
+                    {/* Table Head */}
+                    <thead>
+                        <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
+                            <th className="px-4 py-2 font-bold">Name</th>
+                            <th className="px-4 py-2 font-bold">EMail</th>
+                            <th className="px-4 py-2 font-bold">Role</th>
+                            <th className="px-4 py-2 font-bold">Status</th>
+                            <th className="px-4 py-2 font-bold">Date</th>
+                            <th className="px-4 py-2 font-bold">Setting</th>
                         </tr>
-                    ) : (
-                        member.map((acc, i) => (
-                            <tr className="border-b border-gray-200" key={i}>
-                                <td className="px-4 py-3 flex items-center justify-start gap-2">
-                                    <span>{acc.firstName + " " + acc.lastName}</span>
-                                </td>
-                                <td className="px-4 py-3">{acc.email}</td>
-                                <td className="px-4 py-3 text-nowrap">
-                                    {loading.stack === "action" && loading.idx === acc.id ? (
-                                        <IconLoader3 className="animate-spin" size={18} stroke={2} />
-                                    ) : (
-                                        <select
-                                            name="role"
-                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleRole(acc.id || "", Number(e.target.value))}
-                                            className="px-3 py-1 text-xs bg-gray-50 rounded-lg border border-gray-400"
-                                            value={acc.roleId}
-                                        >
-                                            <option value="">Choose One</option>
-                                            {account.role.name === "admin"
-                                                ? selectRoleByAdmin.map((data, i) => (
-                                                      <option value={data.value} key={i}>
-                                                          {data.name}
-                                                      </option>
-                                                  ))
-                                                : selectRoleByAdmin.map((data, i) => (
-                                                      <option value={data.value} key={i}>
-                                                          {data.name}
-                                                      </option>
-                                                  ))}
-                                        </select>
-                                    )}
-                                </td>
+                    </thead>
 
-                                <td className="px-4 py-3 text-nowrap">
-                                    {loading.stack === "action" && loading.idx === acc.id ? (
-                                        <IconLoader3 className="animate-spin" size={18} stroke={2} />
-                                    ) : (
-                                        <span
-                                            className={`${
-                                                acc.status === "ACTIVED"
-                                                    ? "bg-cyan-700"
-                                                    : acc.status === "FAVOURITED"
-                                                    ? "bg-orange-700"
-                                                    : acc.status === "DELETED"
-                                                    ? "bg-red-700"
-                                                    : "bg-gray-700"
-                                            } text-white px-5 py-1 rounded-full text-[11px] uppercase font-bold`}
-                                        >
-                                            {acc.status}
-                                        </span>
-                                    )}
-                                </td>
-                                <td className="px-4 py-3 text-nowrap">{formatDate(acc.updatedAt)}</td>
-                                <td className="px-4 py-3 text-nowrap">
-                                    <select
-                                        name="status"
-                                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleAction(acc.id || "", e.target.value as STATUS)}
-                                        className="px-3 py-1 text-xs bg-gray-50 rounded-lg border border-gray-400"
-                                        value={acc.status}
-                                    >
-                                        <option value="PENDING">PENDING</option>
-                                        {selectStatus.map((data, i) => (
-                                            <option value={data.value} key={i}>
-                                                {data.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                    {/* Table Body */}
+                    <tbody className="overflow-x-scroll">
+                        {member.length === 0 ? (
+                            <tr className="border-b border-gray-200">
+                                <td className="px-4 py-3 text-nowrap text-center font-bold text-gray-600" colSpan={6}>
+                                    Member is empty
                                 </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
+                        ) : (
+                            member.map((acc, i) => (
+                                <tr className="border-b border-gray-200" key={i}>
+                                    <td className="px-4 py-3 flex items-center justify-start gap-2">
+                                        <span>{acc.firstName + " " + acc.lastName}</span>
+                                    </td>
+                                    <td className="px-4 py-3">{acc.email}</td>
+                                    <td className="px-4 py-3 text-nowrap">
+                                        {loading.stack === "action" && loading.idx === acc.id ? (
+                                            <IconLoader3 className="animate-spin" size={18} stroke={2} />
+                                        ) : (
+                                            <select
+                                                name="role"
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                                                    handleRole(acc.id || "", Number(e.target.value))
+                                                }
+                                                className="px-3 py-1 text-xs bg-gray-50 rounded-lg border border-gray-400"
+                                                value={acc.roleId}
+                                            >
+                                                <option value="">Choose One</option>
+                                                {account.role.name === "admin"
+                                                    ? selectRoleByAdmin.map((data, i) => (
+                                                          <option value={data.value} key={i}>
+                                                              {data.name}
+                                                          </option>
+                                                      ))
+                                                    : selectRoleByAdmin.map((data, i) => (
+                                                          <option value={data.value} key={i}>
+                                                              {data.name}
+                                                          </option>
+                                                      ))}
+                                            </select>
+                                        )}
+                                    </td>
 
-                {/* Table Footer (untuk pagination/numbering) */}
-                <tfoot className="bg-gray-200 max-w-screen-sm">
-                    <tr className="max-w-screen-sm">
-                        <td colSpan={6} className="px-4 py-2">
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm text-gray-500">Showing 1-2 of 2</span>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
-                                        <span className="text-lg">&laquo;</span> Previous
-                                    </button>
-                                    <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
-                                        Next <span className="text-lg">&raquo;</span>
-                                    </button>
+                                    <td className="px-4 py-3 text-nowrap">
+                                        {loading.stack === "action" && loading.idx === acc.id ? (
+                                            <IconLoader3 className="animate-spin" size={18} stroke={2} />
+                                        ) : (
+                                            <span
+                                                className={`${
+                                                    acc.status === "ACTIVED"
+                                                        ? "bg-cyan-700"
+                                                        : acc.status === "FAVOURITED"
+                                                        ? "bg-orange-700"
+                                                        : acc.status === "DELETED"
+                                                        ? "bg-red-700"
+                                                        : "bg-gray-700"
+                                                } text-white px-5 py-1 rounded-full text-[11px] uppercase font-bold`}
+                                            >
+                                                {acc.status}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3 text-nowrap">{formatDate(acc.updatedAt)}</td>
+                                    <td className="px-4 py-3 text-nowrap">
+                                        <select
+                                            name="status"
+                                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                                                handleAction(acc.id || "", e.target.value as STATUS)
+                                            }
+                                            className="px-3 py-1 text-xs bg-gray-50 rounded-lg border border-gray-400"
+                                            value={acc.status}
+                                        >
+                                            <option value="PENDING">PENDING</option>
+                                            {selectStatus.map((data, i) => (
+                                                <option value={data.value} key={i}>
+                                                    {data.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+
+                    {/* Table Footer (untuk pagination/numbering) */}
+                    <tfoot className="bg-gray-200 max-w-screen-sm">
+                        <tr className="max-w-screen-sm">
+                            <td colSpan={6} className="px-4 py-2">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm text-gray-500">Showing 1-2 of 2</span>
+                                    <div className="flex gap-2">
+                                        <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
+                                            <span className="text-lg">&laquo;</span> Previous
+                                        </button>
+                                        <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">
+                                            Next <span className="text-lg">&raquo;</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
         </div>
     );
 }

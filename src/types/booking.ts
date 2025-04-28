@@ -1,4 +1,5 @@
 import { TYPECABIN } from ".";
+import { IRefundBookingResponse } from "./refund";
 
 export type BOOKING_STATUS = "PENDING" | "CONFIRMED" | "DOWNPAYMENT" | "CANCELLED" | "COMPLETED" | "CHECKIN" | "DONE";
 export type PAYMENT_STATUS = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
@@ -69,6 +70,7 @@ export interface IMemberBookingDetailResponse {
         createdAt: string | Date;
         updatedAt: string | Date;
     }>;
+    refund: IRefundBookingResponse | null;
 }
 
 export interface IRepaymentRequest {
