@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 type propsSearchTable = {
     search?: string;
     setSearch: React.Dispatch<SetStateAction<string>>;
-    handleSearch: (e: React.FormEvent<HTMLFormElement>) => void;
+    handleSearch?: (e: React.FormEvent<HTMLFormElement>) => void;
     className?: string;
 };
 

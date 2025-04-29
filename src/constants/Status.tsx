@@ -8,15 +8,15 @@ export const selectStatus: SelectDataInterface[] = [
 ];
 
 export const selectRoleByAdmin: SelectDataInterface[] = [
-    { name: "Admin", value: "3" },
     { name: "Member", value: "1" },
-    { name: "Agent", value: "2" },
+    { name: "Admin", value: "2" },
+    { name: "Agent", value: "3" },
 ];
 
 export const selectRoleBySuperUser: SelectDataInterface[] = [
-    { name: "Admin", value: "3" },
     { name: "Member", value: "1" },
-    { name: "Agent", value: "2" },
+    { name: "Admin", value: "2" },
+    { name: "Agent", value: "3" },
     { name: "Owner", value: "4" },
     { name: "Developer", value: "5" },
 ];

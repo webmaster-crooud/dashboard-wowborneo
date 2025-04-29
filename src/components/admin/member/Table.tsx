@@ -84,7 +84,8 @@ export function MemberTable() {
                     <thead>
                         <tr className="border-b border-gray-300 bg-gray-50 uppercase text-sm">
                             <th className="px-4 py-2 font-bold">Name</th>
-                            <th className="px-4 py-2 font-bold">EMail</th>
+                            <th className="px-4 py-2 font-bold">Email</th>
+                            <th className="px-4 py-2 font-bold">Phone</th>
                             <th className="px-4 py-2 font-bold">Role</th>
                             <th className="px-4 py-2 font-bold">Status</th>
                             <th className="px-4 py-2 font-bold">Date</th>
@@ -93,6 +94,7 @@ export function MemberTable() {
                     </thead>
 
                     {/* Table Body */}
+
                     <tbody className="overflow-x-scroll">
                         {member.length === 0 ? (
                             <tr className="border-b border-gray-200">
@@ -103,10 +105,11 @@ export function MemberTable() {
                         ) : (
                             member.map((acc, i) => (
                                 <tr className="border-b border-gray-200" key={i}>
-                                    <td className="px-4 py-3 flex items-center justify-start gap-2">
-                                        <span>{acc.firstName + " " + acc.lastName}</span>
+                                    <td className="px-4 py-3 flex items-center justify-start gap-2 w-full text-nowrap" width={"100%"}>
+                                        {acc.firstName + " " + acc.lastName}
                                     </td>
                                     <td className="px-4 py-3">{acc.email}</td>
+                                    <td className="px-4 py-3">{acc.phone}</td>
                                     <td className="px-4 py-3 text-nowrap">
                                         {loading.stack === "action" && loading.idx === acc.id ? (
                                             <IconLoader3 className="animate-spin" size={18} stroke={2} />
@@ -178,10 +181,10 @@ export function MemberTable() {
                     </tbody>
 
                     {/* Table Footer (untuk pagination/numbering) */}
-                    <tfoot className="bg-gray-200 max-w-screen-sm">
-                        <tr className="max-w-screen-sm">
-                            <td colSpan={6} className="px-4 py-2">
-                                <div className="flex items-center justify-between">
+                    <tfoot className="bg-gray-200 w-full">
+                        <tr>
+                            <td colSpan={7} className="px-4 py-2 w-full">
+                                <div className="flex items-center justify-between w-full">
                                     <span className="text-sm text-gray-500">Showing 1-2 of 2</span>
                                     <div className="flex gap-2">
                                         <button className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md">

@@ -31,7 +31,6 @@ export function SelectForm({ label, title = "Status", value, onChange, disabled,
                     disabled={disabled}
                     name={label}
                     value={value}
-                    defaultValue={value}
                     className={twMerge(
                         "border appearance-none outline-brown/60 border-black rounded-lg w-full text-black py-3 px-4 text-sm bg-gray-100 disabled:cursor-not-allowed disabled:opacity-70 disabled:border-black/70",
                         className

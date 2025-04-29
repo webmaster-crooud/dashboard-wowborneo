@@ -8,6 +8,7 @@ import {
     IconShip,
     IconSunrise,
     IconTransfer,
+    IconUserScan,
     IconUsersGroup,
 } from "@tabler/icons-react";
 import { MenuInterface } from "~/types";
@@ -93,6 +94,11 @@ export const adminMenuData: MenuInterface[] = [
         title: "Member",
         icon: <IconUsersGroup size={25} stroke={1.5} />,
         url: "/admin/member",
+    },
+    {
+        title: "Agent",
+        icon: <IconUserScan size={25} stroke={1.5} />,
+        url: "/admin/agents",
     },
     {
         title: "Booking",
