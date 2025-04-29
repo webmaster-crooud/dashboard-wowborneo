@@ -39,6 +39,18 @@ export function AgentTable({ agents, search, setSearch, loading, setLoading, fet
         },
         [fetchAgents, setError]
     );
+
+    const deleteAgent = useCallback(async (accountId: string) => {
+        setLoading((l) => ({ ...l, create: true }));
+        try {
+            await api.delete(`${process.env.NEXT_PUBLIC_API}/admin/agent/${accountId}`);
+            await fetchAgents();
+        } catch (error) {
+            fetchError(error, setError);
+        } finally {
+            setLoading((l) => ({ ...l, create: false }));
+        }
+    }, []);
     return (
         <div className="rounded-md border border-gray-300 shadow-sm">
             <div className="flex items-center p-4 justify-between bg-gray-50">
@@ -73,13 +85,24 @@ export function AgentTable({ agents, search, setSearch, loading, setLoading, fet
                                         <td className="px-4 py-3 uppercase">{agent.type}</td>
                                         <td className="px-4 py-3">{agent.commission}%</td>
                                         <td className="px-4 py-3">{agent.commissionLocal}%</td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-4 py-3 flex items-center justify-start gap-3">
                                             <button
                                                 type="button"
                                                 onClick={() => setModalUpdate(agent.id || "")}
                                                 className="px-3 py-1 text-xs bg-cyan-600 text-white rounded-md"
                                             >
                                                 Info
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={async () => {
+                                                    if (confirm("Are you sure you want to delete this agent?")) {
+                                                        await deleteAgent(agent.accountId);
+                                                    }
+                                                }}
+                                                className="px-3 py-1 text-xs bg-red-600 text-white rounded-md"
+                                            >
+                                                Delete
                                             </button>
                                             {modalUpdate === agent.id && (
                                                 <UpdateAgentModal
