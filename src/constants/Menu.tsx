@@ -1,6 +1,7 @@
 import {
     Icon24Hours,
     IconCalendarEvent,
+    IconDiscount2,
     IconFileDatabase,
     IconMail,
     IconPhoneCall,
@@ -109,5 +110,10 @@ export const adminMenuData: MenuInterface[] = [
         title: "Refund",
         icon: <IconReceiptRefund size={25} stroke={1.5} />,
         url: "/admin/refunds",
+    },
+    {
+        title: "Promotions",
+        icon: <IconDiscount2 size={25} stroke={1.5} />,
+        url: "/admin/promotions",
     },
 ];
