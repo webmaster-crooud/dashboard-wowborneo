@@ -33,6 +33,7 @@ const authService = {
     async getAccount(): Promise<ApiSuccessResponse<Account> | null> {
         try {
             const response = await api.get<ApiSuccessResponse<Account>>("/auth");
+            console.log(response);
             if (!response) return null;
             return response.data;
         } catch (error) {

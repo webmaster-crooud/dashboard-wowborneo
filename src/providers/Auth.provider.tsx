@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                                 name: "member",
                             },
                         });
-                        window.location.href = `${process.env.NEXT_PUBLIC_AUTH}/login`;
+                        // window.location.href = `${process.env.NEXT_PUBLIC_AUTH}/login`;
                     }
                 } else {
                     setAccount({
