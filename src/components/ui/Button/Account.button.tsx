@@ -37,7 +37,7 @@ export function AccountButton() {
         setLoading("logout");
         try {
             await authService.logout();
-            // window.location.href = `${process.env.NEXT_PUBLIC_AUTH}/login`;
+            window.location.href = `${process.env.NEXT_PUBLIC_AUTH}`;
             localStorage.clear();
             sessionStorage.clear();
         } catch (error) {
