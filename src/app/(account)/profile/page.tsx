@@ -25,6 +25,7 @@ export default function ProfilePage() {
         role: "",
         userAgent: "",
         cover: "",
+        roleId: 0,
     });
     const [changePassword, setChangePassword] = useState<IChangePassword>({
         oldPassword: "",

@@ -9,6 +9,7 @@ import { useSetAtom } from "jotai";
 import { notificationAtom } from "~/stores";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { LoaderForm } from "~/components/ui/Form/Loader.form";
 
 const dataBreadcrumb: Breadcrumb[] = [
     {
@@ -27,8 +28,8 @@ function CruiseContent() {
     const sParams = useSearchParams();
 
     useEffect(() => {
-        const notificationParam = sParams.get("notification");
-        if (notificationParam) {
+        const notificationParam = sParams;
+        if (notificationParam.get("notification")) {
             setNotification({
                 title: "Notification",
                 message: notificationParam,
@@ -45,16 +46,18 @@ function CruiseContent() {
 
 export default function CruisePage() {
     return (
-        <section className="min-h-screen">
-            <HeaderAdmin dataBreadcrumb={dataBreadcrumb} />
-            <div className="flex items-center justify-start gap-6 flex-wrap mt-5 px-8">
-                <MainButton url="/admin/cruises/create" title="Create" icon={<IconDatabasePlus stroke={2} size={20} />} />
-            </div>
+        <Suspense fallback={<LoaderForm key={"loaderSubmitAdminBooking"} loading={{ stack: "submit", field: "" }} />}>
+            <section className="min-h-screen">
+                <HeaderAdmin dataBreadcrumb={dataBreadcrumb} />
+                <div className="flex items-center justify-start gap-6 flex-wrap mt-5 px-8">
+                    <MainButton url="/admin/cruises/create" title="Create" icon={<IconDatabasePlus stroke={2} size={20} />} />
+                </div>
 
-            {/* Tambahkan Suspense Boundary */}
-            <Suspense fallback={<div>Loading...</div>}>
-                <CruiseContent />
-            </Suspense>
-        </section>
+                {/* Tambahkan Suspense Boundary */}
+                <Suspense fallback={<div>Loading...</div>}>
+                    <CruiseContent />
+                </Suspense>
+            </section>
+        </Suspense>
     );
 }
