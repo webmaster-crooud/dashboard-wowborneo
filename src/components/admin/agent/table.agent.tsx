@@ -1,12 +1,9 @@
 "use client";
 import { SetStateAction, useSetAtom } from "jotai";
-import Link from "next/link";
 import React, { useCallback, useState } from "react";
 import { SearchTable } from "~/components/ui/Sarch.table";
 import { IAgentRequest, IAgentResponse } from "~/types/agent";
 import { UpdateAgentModal } from "./update.agent";
-import { useAgents } from "~/hooks/useAgent";
-import { useRouter } from "next/navigation";
 import { api } from "~/utils/api";
 import { ApiSuccessResponse } from "~/types";
 import { fetchError } from "~/utils/fetchError";
@@ -37,20 +34,23 @@ export function AgentTable({ agents, search, setSearch, loading, setLoading, fet
                 setLoading((l) => ({ ...l, create: false }));
             }
         },
-        [fetchAgents, setError]
+        [fetchAgents, setError, setLoading]
     );
 
-    const deleteAgent = useCallback(async (accountId: string) => {
-        setLoading((l) => ({ ...l, create: true }));
-        try {
-            await api.delete(`${process.env.NEXT_PUBLIC_API}/admin/agent/${accountId}`);
-            await fetchAgents();
-        } catch (error) {
-            fetchError(error, setError);
-        } finally {
-            setLoading((l) => ({ ...l, create: false }));
-        }
-    }, []);
+    const deleteAgent = useCallback(
+        async (accountId: string) => {
+            setLoading((l) => ({ ...l, create: true }));
+            try {
+                await api.delete(`${process.env.NEXT_PUBLIC_API}/admin/agent/${accountId}`);
+                await fetchAgents();
+            } catch (error) {
+                fetchError(error, setError);
+            } finally {
+                setLoading((l) => ({ ...l, create: false }));
+            }
+        },
+        [fetchAgents, setError, setLoading]
+    );
     return (
         <div className="rounded-md border border-gray-300 shadow-sm">
             <div className="flex items-center p-4 justify-between bg-gray-50">

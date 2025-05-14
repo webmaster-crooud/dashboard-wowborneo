@@ -472,7 +472,7 @@ function ModalRepayment({
     const handlePayment = async () => {
         setLoading(true);
         try {
-            const { data } = await api.post(`/transaction/${bookingId}`, repayment, {
+            const { data } = await api.post(`/transaction/${bookingId}/repayment`, repayment, {
                 withCredentials: true,
             });
             console.log(data);

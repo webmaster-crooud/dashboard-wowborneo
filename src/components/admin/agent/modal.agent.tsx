@@ -87,7 +87,7 @@ export function AgentModal({ loading, onCreate, onClose }: AgentModalProps) {
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="mt-1 block w-full border-gray-300 text-sm px-3 py-2 rounded-md"
+                            className="mt-1 block w-full border-gray-900 border text-sm px-3 py-2 rounded-md"
                             placeholder="Type email to search..."
                         />
                         {members.length > 0 && (
@@ -113,7 +113,11 @@ export function AgentModal({ loading, onCreate, onClose }: AgentModalProps) {
                     </div>
 
                     {/* Display selected accountId */}
-                    {form.accountId && <p className="text-sm">Selected: ({form.accountId})</p>}
+                    {form.accountId && (
+                        <p className="text-sm">
+                            Selected: <span className="text-gray-500">{form.accountId}</span>
+                        </p>
+                    )}
 
                     <SelectForm
                         onChange={(e) => setForm({ ...form, type: e.target.value as AGENT_TYPE })}
