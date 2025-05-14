@@ -18,7 +18,18 @@ export function AccountButton() {
     const { account, isLoading } = useAuth();
     const [menuAccount, setMenuAccount] = useState<boolean>(false);
     const [loading, setLoading] = useState<string>("");
-    const [me, setMe] = useState<IAccount>({ email: "", firstName: "", lastName: "", phone: "", cover: "", id: "", ip: "", role: "", userAgent: "" });
+    const [me, setMe] = useState<IAccount>({
+        email: "",
+        firstName: "",
+        lastName: "",
+        phone: "",
+        cover: "",
+        id: "",
+        ip: "",
+        role: "",
+        userAgent: "",
+        roleId: 0,
+    });
     const setError = useSetAtom(errorAtom);
 
     const router = useRouter();

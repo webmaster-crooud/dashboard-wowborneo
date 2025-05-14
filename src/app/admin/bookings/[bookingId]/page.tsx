@@ -15,7 +15,7 @@ import {
 } from "@tabler/icons-react";
 import { useSetAtom } from "jotai";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import React, { SetStateAction, useCallback, useEffect, useState } from "react";
+import React, { SetStateAction, Suspense, useCallback, useEffect, useState } from "react";
 import { Breadcrumb } from "~/components/ui/Breadcrumb";
 import { SubmitButton } from "~/components/ui/Button/Submit.button";
 import { LoaderForm } from "~/components/ui/Form/Loader.form";
@@ -32,7 +32,7 @@ import { useAuth } from "~/hooks/useAuth";
 export default function AdminDetailBooking() {
     const { bookingId } = useParams();
     const router = useRouter();
-    const notification = useSearchParams().get("notification");
+    const notification = useSearchParams();
     const [booking, setBooking] = useState<IMemberBookingDetailResponse | null>(null);
     const [loading, setLoading] = useState<{ stack: string; field?: string }>({ stack: "", field: "" });
     const [modal, setModal] = useState<string>("");
@@ -70,7 +70,7 @@ export default function AdminDetailBooking() {
 
     useEffect(() => {
         fetchBookingDetail();
-        if (notification) {
+        if (notification.get("notification")) {
             setNotification({
                 title: "Booking Updated",
                 message: (
@@ -90,43 +90,20 @@ export default function AdminDetailBooking() {
     }
     return (
         <>
-            <header className="bg-gray-50 pt-10 pb-5 px-8 shadow relative z-10">
-                <Breadcrumb data={dataBreadcrumb} />
-                <div className="">
-                    <h1 className="text-3xl font-bold text-gray-900">{booking?.cruiseTitle}</h1>
-                    <div className="my-3 flex items-center gap-2 text-gray-600">
-                        <IconShip className="h-5 w-5" />
-                        <span>{booking?.boatName}</span>
-                    </div>
+            <Suspense fallback={<LoaderForm key={"loaderSubmitAdminBooking"} loading={{ stack: "submit", field: loading.field }} />}>
+                <header className="bg-gray-50 pt-10 pb-5 px-8 shadow relative z-10">
+                    <Breadcrumb data={dataBreadcrumb} />
+                    <div className="">
+                        <h1 className="text-3xl font-bold text-gray-900">{booking?.cruiseTitle}</h1>
+                        <div className="my-3 flex items-center gap-2 text-gray-600">
+                            <IconShip className="h-5 w-5" />
+                            <span>{booking?.boatName}</span>
+                        </div>
 
-                    <div className="flex items-center justify-between gap-5 mt-5">
-                        <SubmitButton
-                            title="Back"
-                            className="flex-row-reverse py-2"
-                            icon={
-                                loading.stack === "route" && loading.field === "back" ? (
-                                    <IconLoader3
-                                        className="animate-spin
-                                "
-                                        stroke={2}
-                                        size={20}
-                                    />
-                                ) : (
-                                    <IconArrowBack stroke={2} size={20} />
-                                )
-                            }
-                            type="button"
-                            disabled={loading.field === "back" && loading.stack === "route"}
-                            onClick={() => {
-                                setLoading({ stack: "route", field: "back" });
-                                router.push("/admin/bookings");
-                            }}
-                        />
-
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="flex items-center justify-between gap-5 mt-5">
                             <SubmitButton
-                                title="Refund"
-                                className="py-2 hover:bg-red-800 bg-red-300 border-red-300 text-red-800"
+                                title="Back"
+                                className="flex-row-reverse py-2"
                                 icon={
                                     loading.stack === "route" && loading.field === "back" ? (
                                         <IconLoader3
@@ -136,7 +113,7 @@ export default function AdminDetailBooking() {
                                             size={20}
                                         />
                                     ) : (
-                                        <IconReceiptRefund stroke={2} size={20} />
+                                        <IconArrowBack stroke={2} size={20} />
                                     )
                                 }
                                 type="button"
@@ -146,57 +123,11 @@ export default function AdminDetailBooking() {
                                     router.push("/admin/bookings");
                                 }}
                             />
-                            {booking?.bookingStatus === "DONE" && (
-                                <SubmitButton
-                                    title="Confirmation"
-                                    className="py-2 bg-blue-300 border-blue-300 hover:bg-blue-800 text-blue-800"
-                                    icon={
-                                        loading.stack === "route" && loading.field === "back" ? (
-                                            <IconLoader3
-                                                className="animate-spin
-                                "
-                                                stroke={2}
-                                                size={20}
-                                            />
-                                        ) : (
-                                            <IconCalendarCheck stroke={2} size={20} />
-                                        )
-                                    }
-                                    type="button"
-                                    disabled={loading.field === "back" && loading.stack === "route"}
-                                    onClick={() => setModal("confirmed")}
-                                />
-                            )}
-                            {booking?.bookingStatus === "CONFIRMED" && (
-                                <SubmitButton
-                                    title="Checkin"
-                                    className="py-2 bg-cyan-300 border-cyan-300 hover:bg-cyan-800 text-cyan-800"
-                                    icon={
-                                        loading.stack === "route" && loading.field === "back" ? (
-                                            <IconLoader3
-                                                className="animate-spin
-                                "
-                                                stroke={2}
-                                                size={20}
-                                            />
-                                        ) : (
-                                            <IconCalendarCheck stroke={2} size={20} />
-                                        )
-                                    }
-                                    type="button"
-                                    disabled={loading.field === "back" && loading.stack === "route"}
-                                    onClick={() => setModal("checkin")}
-                                />
-                            )}
 
-                            {String(booking?.balancePayment) !== "0" && (
+                            <div className="flex items-center justify-end gap-3">
                                 <SubmitButton
-                                    title={`Paid: ${
-                                        currency === "USD"
-                                            ? formatCurrency(String(booking?.balancePayment))
-                                            : formatCurrencyIDR(String(booking?.balancePaymentIDR))
-                                    }`}
-                                    className="bg-blue-300 border-blue-300 text-blue-800 py-2"
+                                    title="Refund"
+                                    className="py-2 hover:bg-red-800 bg-red-300 border-red-300 text-red-800"
                                     icon={
                                         loading.stack === "route" && loading.field === "back" ? (
                                             <IconLoader3
@@ -206,243 +137,316 @@ export default function AdminDetailBooking() {
                                                 size={20}
                                             />
                                         ) : (
-                                            <IconTransactionDollar stroke={2} size={20} />
+                                            <IconReceiptRefund stroke={2} size={20} />
                                         )
                                     }
                                     type="button"
                                     disabled={loading.field === "back" && loading.stack === "route"}
-                                    onClick={() => setModal("repayment")}
+                                    onClick={() => {
+                                        setLoading({ stack: "route", field: "back" });
+                                        router.push("/admin/bookings");
+                                    }}
                                 />
-                            )}
+                                {booking?.bookingStatus === "DONE" && (
+                                    <SubmitButton
+                                        title="Confirmation"
+                                        className="py-2 bg-blue-300 border-blue-300 hover:bg-blue-800 text-blue-800"
+                                        icon={
+                                            loading.stack === "route" && loading.field === "back" ? (
+                                                <IconLoader3
+                                                    className="animate-spin
+                                "
+                                                    stroke={2}
+                                                    size={20}
+                                                />
+                                            ) : (
+                                                <IconCalendarCheck stroke={2} size={20} />
+                                            )
+                                        }
+                                        type="button"
+                                        disabled={loading.field === "back" && loading.stack === "route"}
+                                        onClick={() => setModal("confirmed")}
+                                    />
+                                )}
+                                {booking?.bookingStatus === "CONFIRMED" && (
+                                    <SubmitButton
+                                        title="Checkin"
+                                        className="py-2 bg-cyan-300 border-cyan-300 hover:bg-cyan-800 text-cyan-800"
+                                        icon={
+                                            loading.stack === "route" && loading.field === "back" ? (
+                                                <IconLoader3
+                                                    className="animate-spin
+                                "
+                                                    stroke={2}
+                                                    size={20}
+                                                />
+                                            ) : (
+                                                <IconCalendarCheck stroke={2} size={20} />
+                                            )
+                                        }
+                                        type="button"
+                                        disabled={loading.field === "back" && loading.stack === "route"}
+                                        onClick={() => setModal("checkin")}
+                                    />
+                                )}
+
+                                {String(booking?.balancePayment) !== "0" && (
+                                    <SubmitButton
+                                        title={`Paid: ${
+                                            currency === "USD"
+                                                ? formatCurrency(String(booking?.balancePayment))
+                                                : formatCurrencyIDR(String(booking?.balancePaymentIDR))
+                                        }`}
+                                        className="bg-blue-300 border-blue-300 text-blue-800 py-2"
+                                        icon={
+                                            loading.stack === "route" && loading.field === "back" ? (
+                                                <IconLoader3
+                                                    className="animate-spin
+                                "
+                                                    stroke={2}
+                                                    size={20}
+                                                />
+                                            ) : (
+                                                <IconTransactionDollar stroke={2} size={20} />
+                                            )
+                                        }
+                                        type="button"
+                                        disabled={loading.field === "back" && loading.stack === "route"}
+                                        onClick={() => setModal("repayment")}
+                                    />
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </header>
-            <section className="min-h-screen p-8">
-                {/* Header Section */}
-                <div className="flex mb-8 text-gray-500 font-semibold items-center justify-end w-full gap-3">
-                    <span>USD</span>
-                    <button type="button" onClick={() => setCurrency(currency === "IDR" ? "USD" : "IDR")} className="flex items-center">
-                        <div className="h-5 w-10 border border-gray-300 rounded-full flex items-center relative overflow-hidden bg-white">
-                            <m.div
-                                initial={false}
-                                animate={{
-                                    x: currency === "USD" ? 0 : 18, // 24px = 1.5rem (w-10(2.5rem) - w-4(1rem))
-                                    scale: 1,
-                                }}
-                                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                                className="absolute left-0.5 w-4 h-4 bg-brown rounded-full"
-                            ></m.div>
-                        </div>
-                    </button>
-                    <span>IDR</span>
-                </div>
-                {/* Main Content Grid */}
-                <div className="grid gap-6 md:grid-cols-2">
-                    {/* Left Column */}
-                    <div className="space-y-6">
-                        {/* Cabin Details */}
-                        <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
-                            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-                                <IconShip className="h-6 w-6 text-gray-600" />
-                                Cabin Information
-                            </h2>
-                            <div className="space-y-2 text-gray-700">
-                                <p>
-                                    <span className="font-medium">Cabin Type:</span>{" "}
-                                    <span className="capitalize">{booking?.cabinName.toLocaleLowerCase()} Bed</span>
-                                </p>
-                                <p>
-                                    <span className="font-medium">Booking Status:</span>
-                                    <span
-                                        className={`ml-2 rounded-lg px-2 py-1 text-xs font-medium
+                </header>
+                <section className="min-h-screen p-8">
+                    {/* Header Section */}
+                    <div className="flex mb-8 text-gray-500 font-semibold items-center justify-end w-full gap-3">
+                        <span>USD</span>
+                        <button type="button" onClick={() => setCurrency(currency === "IDR" ? "USD" : "IDR")} className="flex items-center">
+                            <div className="h-5 w-10 border border-gray-300 rounded-full flex items-center relative overflow-hidden bg-white">
+                                <m.div
+                                    initial={false}
+                                    animate={{
+                                        x: currency === "USD" ? 0 : 18, // 24px = 1.5rem (w-10(2.5rem) - w-4(1rem))
+                                        scale: 1,
+                                    }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                    className="absolute left-0.5 w-4 h-4 bg-brown rounded-full"
+                                ></m.div>
+                            </div>
+                        </button>
+                        <span>IDR</span>
+                    </div>
+                    {/* Main Content Grid */}
+                    <div className="grid gap-6 md:grid-cols-2">
+                        {/* Left Column */}
+                        <div className="space-y-6">
+                            {/* Cabin Details */}
+                            <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
+                                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+                                    <IconShip className="h-6 w-6 text-gray-600" />
+                                    Cabin Information
+                                </h2>
+                                <div className="space-y-2 text-gray-700">
+                                    <p>
+                                        <span className="font-medium">Cabin Type:</span>{" "}
+                                        <span className="capitalize">{booking?.cabinName.toLocaleLowerCase()} Bed</span>
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Booking Status:</span>
+                                        <span
+                                            className={`ml-2 rounded-lg px-2 py-1 text-xs font-medium
                                     ${booking?.bookingStatus === "DOWNPAYMENT" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}`}
-                                    >
-                                        {booking?.bookingStatus}
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Guest Details */}
-                        <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
-                            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-                                <IconUser className="h-6 w-6 text-gray-600" />
-                                Guest Details
-                            </h2>
-                            {booking?.guests.map((guest, index) => (
-                                <div key={index} className="mb-4 rounded border-b pb-4 last:border-b-0">
-                                    <div>
-                                        <h3 className="font-semibold">
-                                            {guest.firstName} {guest.lastName}
-                                        </h3>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="font-medium text-sm">email</p>
-                                            <p className="text-sm text-gray-500">{guest.email}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">Passenger Type</p>
-                                            <p className="text-sm text-gray-500">{guest.children}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">Contact</p>
-                                            <p className="text-sm text-gray-500">{guest.phone}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">Identity</p>
-                                            <p className="text-sm text-gray-500">{guest.identityNumber}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">Country</p>
-                                            <p className="text-sm text-gray-500">{guest.country}</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-medium text-sm">Price</p>
-                                            <p className="text-sm text-gray-500">{formatCurrency(String(guest.price))}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="space-y-6">
-                        {/* Payment Summary */}
-                        <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
-                            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-                                <IconCoin className="h-6 w-6 text-gray-600" />
-                                Payment Summary
-                            </h2>
-                            <div className="space-y-3 text-gray-700">
-                                {booking?.guests.map((guest, i) => (
-                                    <div className="flex justify-between" key={i}>
-                                        <span>
-                                            Guest <span className="capitalize">{guest.children.toLocaleLowerCase()}</span>:
+                                        >
+                                            {booking?.bookingStatus}
                                         </span>
-                                        <span>{formatCurrency(String(guest.price))}</span>
-                                    </div>
-                                ))}
-                                {booking?.addons.map((addon, i) => (
-                                    <div className="flex justify-between" key={i}>
-                                        <span>{addon.title}:</span>
-                                        <div className="flex flex-col text-end justify-end">
-                                            <span>
-                                                ({addon.qty}) x {formatCurrency(String(addon.price))}
-                                            </span>
-                                            <span>{formatCurrency(String(addon.totalPrice))}</span>
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Guest Details */}
+                            <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
+                                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+                                    <IconUser className="h-6 w-6 text-gray-600" />
+                                    Guest Details
+                                </h2>
+                                {booking?.guests.map((guest, index) => (
+                                    <div key={index} className="mb-4 rounded border-b pb-4 last:border-b-0">
+                                        <div>
+                                            <h3 className="font-semibold">
+                                                {guest.firstName} {guest.lastName}
+                                            </h3>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="font-medium text-sm">email</p>
+                                                <p className="text-sm text-gray-500">{guest.email}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">Passenger Type</p>
+                                                <p className="text-sm text-gray-500">{guest.children}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">Contact</p>
+                                                <p className="text-sm text-gray-500">{guest.phone}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">Identity</p>
+                                                <p className="text-sm text-gray-500">{guest.identityNumber}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">Country</p>
+                                                <p className="text-sm text-gray-500">{guest.country}</p>
+                                            </div>
+                                            <div>
+                                                <p className="font-medium text-sm">Price</p>
+                                                <p className="text-sm text-gray-500">{formatCurrency(String(guest.price))}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
-                                <div className="flex justify-between border-t pt-2">
-                                    <span>Subtotal:</span>
-                                    <span>{formatCurrency(String(booking?.subTotalPrice))}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span>Discount:</span>
-                                    <span>{booking?.discount}</span>
-                                </div>
-                                <div className="flex justify-between font-semibold">
-                                    <span>Total Price:</span>
-                                    <span>{formatCurrency(String(booking?.finalPrice))}</span>
-                                </div>
-                                <div className="mt-4 pt-4 border-t">
-                                    <div className="flex justify-between text-green-600">
-                                        <span>Paid Amount:</span>
-                                        <span>
-                                            <span>
-                                                {currency === "USD"
-                                                    ? formatCurrency(String(booking?.amountPayment))
-                                                    : formatCurrencyIDR(String(booking?.amountPaymentIDR))}
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div className="flex justify-between text-red-600">
-                                        <span>Remaining Balance:</span>
-                                        <span>
-                                            <span>
-                                                -{" "}
-                                                {currency === "USD"
-                                                    ? formatCurrency(String(booking?.balancePayment))
-                                                    : formatCurrencyIDR(String(booking?.balancePaymentIDR))}
-                                            </span>
-                                        </span>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
-                        {/* Addons */}
-                        <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
-                            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-                                <IconPackage className="h-6 w-6 text-gray-600" />
-                                Additional Packages
-                            </h2>
-                            {booking?.addons.map((addon, index) => (
-                                <div key={index} className="flex justify-between py-2">
-                                    <div>
-                                        <p className="font-medium">{addon.title}</p>
-                                        <p className="text-sm text-gray-500">
-                                            {addon.qty} x {formatCurrency(String(addon.price))}
-                                        </p>
+                        {/* Right Column */}
+                        <div className="space-y-6">
+                            {/* Payment Summary */}
+                            <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
+                                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+                                    <IconCoin className="h-6 w-6 text-gray-600" />
+                                    Payment Summary
+                                </h2>
+                                <div className="space-y-3 text-gray-700">
+                                    {booking?.guests.map((guest, i) => (
+                                        <div className="flex justify-between" key={i}>
+                                            <span>
+                                                Guest <span className="capitalize">{guest.children.toLocaleLowerCase()}</span>:
+                                            </span>
+                                            <span>{formatCurrency(String(guest.price))}</span>
+                                        </div>
+                                    ))}
+                                    {booking?.addons.map((addon, i) => (
+                                        <div className="flex justify-between" key={i}>
+                                            <span>{addon.title}:</span>
+                                            <div className="flex flex-col text-end justify-end">
+                                                <span>
+                                                    ({addon.qty}) x {formatCurrency(String(addon.price))}
+                                                </span>
+                                                <span>{formatCurrency(String(addon.totalPrice))}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div className="flex justify-between border-t pt-2">
+                                        <span>Subtotal:</span>
+                                        <span>{formatCurrency(String(booking?.subTotalPrice))}</span>
                                     </div>
-                                    <p className="font-medium"> {formatCurrency(String(addon.totalPrice))}</p>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Transactions */}
-                        <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
-                            <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
-                                <IconReceipt className="h-6 w-6 text-gray-600" />
-                                Transaction History
-                            </h2>
-                            {booking?.transactions.map((transaction, index) => (
-                                <div key={index} className="mb-3 rounded border p-3 last:mb-0">
                                     <div className="flex justify-between">
-                                        <div className="flex flex-col">
-                                            <span className="text-brown font-semibold text-sm uppercase">{transaction.id}</span>
-                                            <span className="font-medium">{new Date(transaction.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                        <span className={`font-semibold ${transaction.status === "SUCCESS" ? "text-green-600" : "text-yellow-600"}`}>
-                                            {transaction.status}
-                                        </span>
+                                        <span>Discount:</span>
+                                        <span>{booking?.discount}</span>
                                     </div>
-                                    <p className="text-gray-600 text-sm">{transaction.notes}</p>
-                                    <p className="text-right font-medium">{formatCurrency(String(transaction.amount))}</p>
+                                    <div className="flex justify-between font-semibold">
+                                        <span>Total Price:</span>
+                                        <span>{formatCurrency(String(booking?.finalPrice))}</span>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t">
+                                        <div className="flex justify-between text-green-600">
+                                            <span>Paid Amount:</span>
+                                            <span>
+                                                <span>
+                                                    {currency === "USD"
+                                                        ? formatCurrency(String(booking?.amountPayment))
+                                                        : formatCurrencyIDR(String(booking?.amountPaymentIDR))}
+                                                </span>
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-red-600">
+                                            <span>Remaining Balance:</span>
+                                            <span>
+                                                <span>
+                                                    -{" "}
+                                                    {currency === "USD"
+                                                        ? formatCurrency(String(booking?.balancePayment))
+                                                        : formatCurrencyIDR(String(booking?.balancePaymentIDR))}
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Addons */}
+                            <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
+                                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+                                    <IconPackage className="h-6 w-6 text-gray-600" />
+                                    Additional Packages
+                                </h2>
+                                {booking?.addons.map((addon, index) => (
+                                    <div key={index} className="flex justify-between py-2">
+                                        <div>
+                                            <p className="font-medium">{addon.title}</p>
+                                            <p className="text-sm text-gray-500">
+                                                {addon.qty} x {formatCurrency(String(addon.price))}
+                                            </p>
+                                        </div>
+                                        <p className="font-medium"> {formatCurrency(String(addon.totalPrice))}</p>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Transactions */}
+                            <div className="rounded-lg bg-gray-50 p-5 border border-gray-200 shadow-sm">
+                                <h2 className="mb-4 flex items-center gap-2 text-xl font-semibold text-gray-900">
+                                    <IconReceipt className="h-6 w-6 text-gray-600" />
+                                    Transaction History
+                                </h2>
+                                {booking?.transactions.map((transaction, index) => (
+                                    <div key={index} className="mb-3 rounded border p-3 last:mb-0">
+                                        <div className="flex justify-between">
+                                            <div className="flex flex-col">
+                                                <span className="text-brown font-semibold text-sm uppercase">{transaction.id}</span>
+                                                <span className="font-medium">{new Date(transaction.createdAt).toLocaleDateString()}</span>
+                                            </div>
+                                            <span
+                                                className={`font-semibold ${transaction.status === "SUCCESS" ? "text-green-600" : "text-yellow-600"}`}
+                                            >
+                                                {transaction.status}
+                                            </span>
+                                        </div>
+                                        <p className="text-gray-600 text-sm">{transaction.notes}</p>
+                                        <p className="text-right font-medium">{formatCurrency(String(transaction.amount))}</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
-            {modal === "repayment" && (
-                <ModalRepayment
-                    setModal={setModal}
-                    amountPayment={booking?.amountPayment || 0}
-                    finalPrice={booking?.finalPrice || 0}
-                    balancePayment={booking?.balancePayment || 0}
-                />
-            )}
-            {modal === "confirmed" && (
-                <ModalConfirmed
-                    setModal={setModal}
-                    finalPrice={booking?.finalPrice || 0}
-                    bookingId={booking?.id.toString() || bookingId.toString()}
-                    email={booking?.email || ""}
-                    fetchBookingDetail={fetchBookingDetail}
-                />
-            )}
-            {modal === "checkin" && (
-                <ModalCheckin
-                    setModal={setModal}
-                    finalPrice={booking?.finalPrice || 0}
-                    bookingId={booking?.id.toString() || bookingId.toString()}
-                    fetchBookingDetail={fetchBookingDetail}
-                />
-            )}
+                </section>
+                {modal === "repayment" && (
+                    <ModalRepayment
+                        setModal={setModal}
+                        amountPayment={booking?.amountPayment || 0}
+                        finalPrice={booking?.finalPrice || 0}
+                        balancePayment={booking?.balancePayment || 0}
+                    />
+                )}
+                {modal === "confirmed" && (
+                    <ModalConfirmed
+                        setModal={setModal}
+                        finalPrice={booking?.finalPrice || 0}
+                        bookingId={booking?.id.toString() || bookingId.toString()}
+                        email={booking?.email || ""}
+                        fetchBookingDetail={fetchBookingDetail}
+                    />
+                )}
+                {modal === "checkin" && (
+                    <ModalCheckin
+                        setModal={setModal}
+                        finalPrice={booking?.finalPrice || 0}
+                        bookingId={booking?.id.toString() || bookingId.toString()}
+                        fetchBookingDetail={fetchBookingDetail}
+                    />
+                )}
+            </Suspense>
         </>
     );
 }

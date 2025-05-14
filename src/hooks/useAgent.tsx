@@ -1,5 +1,4 @@
 import { useSetAtom } from "jotai";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { errorAtom } from "~/stores";
 import { ApiSuccessResponse } from "~/types";
